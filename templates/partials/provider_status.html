@@ -1,0 +1,9 @@
+<div class="flex flex-wrap gap-2 text-xs">
+  {% for p in providers %}
+  <span class="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 border font-medium {% if p.has_key %}border-emerald-500/20 bg-emerald-500/10 text-emerald-300{% else %}border-slate-800 bg-slate-900 text-slate-500{% endif %}">
+    <span class="h-1.5 w-1.5 rounded-full {% if p.has_key %}bg-emerald-400{% else %}bg-slate-600{% endif %}"></span>
+    <span class="uppercase tracking-wider font-semibold">{{ p.name }}</span>
+    <span class="text-[10px] text-slate-400">({{ p.models_count }})</span>
+  </span>
+  {% endfor %}
+</div>

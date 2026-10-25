@@ -1,0 +1,232 @@
+/* ============================================================================
+   PromptLab v1 by MAx Ops Core & Design Tokens
+   ============================================================================ */
+
+:root {
+  color-scheme: dark;
+  --bg-main: #0b0f19;
+  --bg-card: #111827;
+  --border-color: #1f2937;
+  --text-primary: #f9fafb;
+  --text-muted: #9ca3af;
+}
+
+.light-theme {
+  color-scheme: light;
+  --bg-main: #f3f4f6;
+  --bg-card: #ffffff;
+  --border-color: #e5e7eb;
+  --text-primary: #111827;
+  --text-muted: #6b7280;
+}
+
+/* ============================================================================
+   Sleek WebKit Scrollbar
+   ============================================================================ */
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #374151;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #4b5563;
+}
+
+.light-theme ::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+}
+
+.light-theme ::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* ============================================================================
+   HTMX Loading Indicators
+   ============================================================================ */
+
+.htmx-indicator {
+  display: none;
+}
+
+.htmx-request .htmx-indicator,
+.htmx-request.htmx-indicator {
+  display: inline-flex !important;
+}
+
+.htmx-request #sync-icon {
+  display: none !important;
+}
+
+/* ============================================================================
+   Animations & Transitions
+   ============================================================================ */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Toast Animations */
+@keyframes toastSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(110%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes toastFadeOut {
+  from {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(30px) scale(0.95);
+  }
+}
+
+.toast-enter {
+  animation: toastSlideIn 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.toast-leave {
+  animation: toastFadeOut 0.22s ease-in forwards;
+}
+
+/* ============================================================================
+   Code Blocks & Typography
+   ============================================================================ */
+
+pre, code, kbd {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+.prose pre {
+  background-color: #0f172a !important;
+  border: 1px solid #1e293b !important;
+  border-radius: 0.75rem !important;
+  padding: 1rem !important;
+  overflow-x: auto;
+  box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.3);
+}
+
+.prose code {
+  color: #a5b4fc !important;
+}
+
+.light-theme .prose pre {
+  background-color: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: inset 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.light-theme .prose code {
+  color: #4338ca !important;
+}
+
+/* ============================================================================
+   Light Theme Adaptations
+   ============================================================================ */
+
+.light-theme body {
+  background-color: var(--bg-main) !important;
+  color: var(--text-primary) !important;
+}
+
+.light-theme header {
+  background-color: rgba(255, 255, 255, 0.85) !important;
+  border-color: var(--border-color) !important;
+}
+
+.light-theme aside#sidebar {
+  background-color: rgba(255, 255, 255, 0.75) !important;
+  border-color: var(--border-color) !important;
+}
+
+.light-theme #prompt-form,
+.light-theme .response-card,
+.light-theme .rounded-xl.border-slate-800,
+.light-theme .modal-card {
+  background-color: var(--bg-card) !important;
+  border-color: var(--border-color) !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05) !important;
+}
+
+.light-theme textarea#prompt-input,
+.light-theme textarea#system-prompt-input,
+.light-theme input[type="text"],
+.light-theme input[type="number"],
+.light-theme select {
+  background-color: #ffffff !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+.light-theme textarea::placeholder,
+.light-theme input::placeholder {
+  color: var(--text-muted) !important;
+}
+
+.light-theme .text-slate-100,
+.light-theme .text-slate-200,
+.light-theme .text-white {
+  color: var(--text-primary) !important;
+}
+
+.light-theme .text-slate-300,
+.light-theme .text-slate-400,
+.light-theme .text-slate-500 {
+  color: var(--text-muted) !important;
+}
+
+.light-theme .border-slate-800,
+.light-theme .border-slate-800\/80,
+.light-theme .border-slate-800\/60,
+.light-theme .border-slate-700,
+.light-theme .border-slate-700\/80,
+.light-theme .border-slate-700\/90 {
+  border-color: var(--border-color) !important;
+}
+
+.light-theme .bg-slate-950,
+.light-theme .bg-slate-950\/80,
+.light-theme .bg-slate-950\/90,
+.light-theme .bg-slate-950\/70,
+.light-theme .bg-slate-950\/60,
+.light-theme .bg-slate-950\/40 {
+  background-color: #f8fafc !important;
+}
+
+.light-theme .bg-slate-900\/60,
+.light-theme .bg-slate-900\/40,
+.light-theme .bg-slate-900\/20 {
+  background-color: #ffffff !important;
+}
+
+.light-theme .prose {
+  color: #334155 !important;
+}

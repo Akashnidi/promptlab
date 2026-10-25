@@ -1,0 +1,137 @@
+<div
+  id="modal-backdrop"
+  class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-sm animate-fade-in"
+  onclick="if(event.target === this) closeModal();"
+>
+  <div class="relative flex max-h-[90vh] w-full max-w-2xl flex-col rounded-2xl border border-slate-800 bg-slate-900 p-6 shadow-2xl overflow-hidden">
+    
+    <!-- Modal Header -->
+    <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+      <div class="flex items-center gap-2">
+        <span class="rounded-md border border-indigo-500/20 bg-indigo-500/10 px-2 py-0.5 text-xs font-semibold uppercase tracking-wider text-indigo-400">
+          {{ entry.provider }}
+        </span>
+        <span class="font-mono text-xs text-slate-200 font-medium">
+          {{ entry.model }}
+        </span>
+      </div>
+
+      <button
+        type="button"
+        onclick="closeModal()"
+        class="rounded-lg p-1 text-slate-400 hover:bg-slate-800 hover:text-white transition-colors"
+        title="Close modal"
+      >
+        ✕
+      </button>
+    </div>
+
+    <!-- Modal Body (Scrollable) -->
+    <div class="flex-1 overflow-y-auto space-y-4 py-4 text-xs">
+      
+      <!-- Metadata Row -->
+      <div class="flex flex-wrap items-center gap-3 rounded-lg bg-slate-950/60 p-2.5 text-slate-400 font-mono">
+        <span>⚡ {{ entry.latency_ms | round(0) }}ms</span>
+        <span>•</span>
+        <span>🔢 {{ entry.usage.total_tokens }} tokens ({{ entry.usage.prompt_tokens }} in / {{ entry.usage.completion_tokens }} out)</span>
+        <span>•</span>
+        <span>🌡️ Temp: {{ entry.temperature }}</span>
+      </div>
+
+      <!-- Rating Row -->
+      <div class="flex items-center gap-2">
+        <span class="text-slate-400 font-medium">Rating:</span>
+        <div class="flex items-center gap-1 text-base cursor-pointer">
+          {% for i in range(1, 6) %}
+          <button
+            type="button"
+            hx-post="/history/{{ entry.id }}/rate?rating={{ i }}"
+            hx-target="#history-sidebar-list"
+            onclick="updateActiveStars(this, {{ i }})"
+            class="star-btn transition-transform hover:scale-125 {% if entry.rating and entry.rating >= i %}text-amber-400{% else %}text-slate-600{% endif %}"
+            title="Rate {{ i }} stars"
+          >
+            ★
+          </button>
+          {% endfor %}
+        </div>
+      </div>
+
+      {% if entry.system_prompt %}
+      <!-- System Prompt -->
+      <div>
+        <span class="font-semibold uppercase tracking-wider text-slate-400 text-[10px]">System Prompt</span>
+        <div class="mt-1 rounded-lg border border-slate-800 bg-slate-950/70 p-3 text-slate-300 font-mono whitespace-pre-wrap">
+          {{ entry.system_prompt }}
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- User Prompt -->
+      <div>
+        <div class="flex items-center justify-between mb-1">
+          <span class="font-semibold uppercase tracking-wider text-slate-400 text-[10px]">User Prompt</span>
+          <button
+            type="button"
+            onclick="copyToClipboard(document.getElementById('modal-prompt-content').innerText, 'Prompt copied to clipboard!'); this.innerText='Copied!'; setTimeout(()=>this.innerText='Copy', 1500);"
+            class="text-[11px] text-indigo-400 hover:text-indigo-300 font-medium"
+          >
+            Copy
+          </button>
+        </div>
+        <div id="modal-prompt-content" class="rounded-lg border border-slate-800 bg-slate-950/70 p-3 text-slate-200 font-mono whitespace-pre-wrap">
+          {{ entry.prompt }}
+        </div>
+      </div>
+
+      <!-- AI Response -->
+      <div>
+        <div class="flex items-center justify-between mb-1">
+          <span class="font-semibold uppercase tracking-wider text-slate-400 text-[10px]">AI Response</span>
+          <button
+            type="button"
+            onclick="copyToClipboard(document.getElementById('modal-response-content').innerText, 'Response copied to clipboard!'); this.innerText='Copied!'; setTimeout(()=>this.innerText='Copy', 1500);"
+            class="text-[11px] text-indigo-400 hover:text-indigo-300 font-medium"
+          >
+            Copy
+          </button>
+        </div>
+        <div id="modal-response-content" class="rounded-lg border border-slate-800 bg-slate-950/70 p-3 text-slate-200 leading-relaxed max-h-60 overflow-y-auto">
+          {% if formatted_response %}
+            {{ formatted_response | safe }}
+          {% else %}
+            {{ entry.response }}
+          {% endif %}
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Modal Footer Actions -->
+    <div class="flex items-center justify-between border-t border-slate-800 pt-3">
+      <span class="text-[11px] text-slate-500 font-mono">
+        {{ entry.timestamp[:19].replace('T', ' ') }} UTC
+      </span>
+
+      <div class="flex items-center gap-2">
+        <button
+          type="button"
+          onclick="closeModal()"
+          class="rounded-lg border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-slate-700 hover:text-white transition-colors"
+        >
+          Close
+        </button>
+        
+        <button
+          type="button"
+          onclick="loadPromptIntoEditor({{ entry | tojson | forceescape }}); closeModal();"
+          class="inline-flex items-center gap-1.5 rounded-lg bg-indigo-600 px-4 py-1.5 text-xs font-semibold text-white shadow-md shadow-indigo-600/30 hover:bg-indigo-500 transition-all active:scale-95"
+        >
+          <span>Load into Editor</span>
+          <span>↗</span>
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>

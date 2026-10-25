@@ -1,0 +1,129 @@
+<div
+  class="response-card mb-6 rounded-xl border border-amber-500/30 bg-slate-900/80 p-5 shadow-2xl backdrop-blur-md transition-all animate-fade-in"
+  id="arena-comparison-{{ timestamp }}"
+>
+  <!-- Comparison Header Bar -->
+  <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/80 pb-3.5 mb-4">
+    <div class="flex items-center gap-2.5">
+      <span class="inline-flex items-center gap-1.5 rounded-md border border-amber-500/30 bg-amber-500/10 px-2.5 py-1 text-xs font-bold uppercase tracking-wider text-amber-400 shadow-sm">
+        <span>⚖️</span>
+        <span>LLM Arena Comparison</span>
+      </span>
+      <span class="text-xs font-mono text-slate-300">
+        {{ model_count }} Models Compared
+      </span>
+    </div>
+
+    <!-- Overall Metrics & Summary -->
+    <div class="flex items-center gap-3 text-xs font-mono">
+      <span class="flex items-center gap-1 px-2.5 py-1 rounded-md bg-amber-500/10 text-amber-300 border border-amber-500/20" title="Combined Token Consumption">
+        <span>🔥</span>
+        <span>Combined Burn: <strong>{{ combined_tokens }}</strong> tokens</span>
+      </span>
+
+      <span class="text-[11px] text-slate-500">
+        {{ created_at_time }}
+      </span>
+    </div>
+  </div>
+
+  <!-- Prompt Reference (Truncated preview) -->
+  <div class="mb-4 rounded-lg bg-slate-950/60 p-2.5 text-xs font-mono text-slate-400 border border-slate-800/80 flex items-center gap-2">
+    <span class="text-indigo-400 font-bold uppercase tracking-wider text-[10px] flex-shrink-0">Prompt:</span>
+    <span class="truncate text-slate-300">{{ prompt }}</span>
+  </div>
+
+  <!-- Side-by-Side Comparison Grid (2 or 3 columns) -->
+  <div class="grid grid-cols-1 {% if model_count == 2 %}md:grid-cols-2{% else %}md:grid-cols-2 lg:grid-cols-3{% endif %} gap-4 items-stretch">
+    {% for item in results %}
+    <div
+      id="arena-card-{{ timestamp }}-{{ loop.index }}"
+      class="arena-result-card flex flex-col justify-between rounded-xl border border-slate-800 bg-slate-950/70 p-4 transition-all duration-300 hover:border-slate-700 relative overflow-hidden"
+    >
+      <!-- Top Badges & Model Header -->
+      <div>
+        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800/80 pb-2.5 mb-3">
+          <div class="flex items-center gap-1.5 min-w-0">
+            <span class="inline-flex items-center rounded bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-semibold text-amber-400 border border-amber-500/20">
+              ⚡ {{ item.provider }}
+            </span>
+            <span class="font-mono text-xs font-bold text-slate-100 truncate" title="{{ item.model }}">
+              {{ item.model }}
+            </span>
+          </div>
+
+          <!-- Performance Badges -->
+          <div class="flex items-center gap-1.5 flex-wrap">
+            {% if item.is_fastest %}
+            <span class="inline-flex items-center gap-0.5 rounded px-2 py-0.5 text-[10px] font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 shadow-sm" title="Fastest Execution Time">
+              ⚡ Lowest Latency
+            </span>
+            {% endif %}
+
+            {% if item.is_most_efficient %}
+            <span class="inline-flex items-center gap-0.5 rounded px-2 py-0.5 text-[10px] font-bold bg-sky-500/15 text-sky-300 border border-sky-500/30 shadow-sm" title="Fewest Total Tokens">
+              💰 Fewest Tokens
+            </span>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Hidden raw text for copying -->
+        <textarea id="raw-arena-{{ timestamp }}-{{ loop.index }}" class="hidden">{{ item.content }}</textarea>
+
+        <!-- Response Content / Error Alert -->
+        {% if item.success %}
+        <div class="prose prose-invert max-w-none text-xs leading-relaxed text-slate-200 py-2 max-h-[420px] overflow-y-auto">
+          {% if item.formatted_content %}
+            {{ item.formatted_content | safe }}
+          {% else %}
+            {{ item.content }}
+          {% endif %}
+        </div>
+        {% else %}
+        <div class="rounded-lg border border-rose-500/30 bg-rose-500/10 p-3 text-xs text-rose-300 my-2">
+          <div class="font-semibold mb-1">❌ Model Generation Failed</div>
+          <p class="font-mono text-[11px] text-rose-200/80">{{ item.error }}</p>
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Footer Stats & Actions -->
+      <div class="border-t border-slate-800/80 pt-3 mt-4 space-y-2.5">
+        <div class="flex items-center justify-between text-[11px] font-mono text-slate-400">
+          <span title="Model Latency">
+            ⚡ {% if item.latency_ms >= 1000 %}{{ (item.latency_ms / 1000) | round(2) }}s{% else %}{{ item.latency_ms | round(0) }}ms{% endif %}
+          </span>
+          <span title="Tokens (Input → Output)">
+            📥 {{ item.usage.prompt_tokens }} → 📤 {{ item.usage.completion_tokens }} ({{ item.usage.total_tokens }} total)
+          </span>
+        </div>
+
+        <div class="flex items-center justify-between gap-2 pt-1">
+          <!-- Copy Button -->
+          <button
+            type="button"
+            onclick="copyArenaResponse(this, 'raw-arena-{{ timestamp }}-{{ loop.index }}', '{{ item.model }}')"
+            class="inline-flex items-center gap-1 rounded-lg border border-slate-700 bg-slate-800/80 px-2.5 py-1 text-xs font-medium text-slate-300 hover:bg-slate-700 hover:text-white transition-all active:scale-95"
+            title="Copy this model's response"
+          >
+            <span>📋</span>
+            <span>Copy</span>
+          </button>
+
+          <!-- Pick Winner Button -->
+          <button
+            type="button"
+            onclick="selectArenaWinner(this, '{{ item.model }}', 'arena-card-{{ timestamp }}-{{ loop.index }}')"
+            class="pick-winner-btn inline-flex items-center gap-1 rounded-lg border border-indigo-500/40 bg-indigo-500/10 px-3 py-1 text-xs font-semibold text-indigo-300 hover:bg-indigo-500/20 hover:border-indigo-500/60 transition-all active:scale-95"
+            title="Mark this model as the preferred output"
+          >
+            <span>🏆</span>
+            <span>Pick Winner</span>
+          </button>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>

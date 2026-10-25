@@ -1,0 +1,36 @@
+{% if variables %}
+<div class="rounded-xl border border-indigo-500/20 bg-indigo-500/5 p-4 space-y-3 animate-fade-in">
+  <div class="flex items-center justify-between pb-1 border-b border-indigo-500/10">
+    <span class="text-xs font-semibold uppercase tracking-wider text-indigo-300 flex items-center gap-1.5">
+      <span>🧩</span>
+      <span>Detected Template Variables ({{ variables|length }})</span>
+    </span>
+    <span class="text-[11px] text-slate-500">Values are rendered before sending</span>
+  </div>
+
+  <div class="grid gap-3 sm:grid-cols-2">
+    {% for var in variables %}
+    <div class="flex flex-col gap-1">
+      <label for="var_{{ var }}" class="text-xs font-medium text-slate-300 flex items-center gap-1">
+        <span class="inline-block rounded bg-indigo-500/20 px-1.5 py-0.5 text-[10px] font-mono text-indigo-300">
+          🏷️ {{ var }}
+        </span>
+      </label>
+      <input
+        type="text"
+        id="var_{{ var }}"
+        name="var_{{ var }}"
+        placeholder="Enter {{ var }}..."
+        class="w-full rounded-lg border border-slate-700 bg-slate-950/90 px-3 py-1.5 text-xs text-slate-100 placeholder-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 font-mono transition-colors"
+      />
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% else %}
+<div class="rounded-lg border border-dashed border-slate-800/80 bg-slate-900/20 p-3 text-center">
+  <p class="text-xs text-slate-500">
+    💡 Add <code class="rounded bg-slate-800 px-1 py-0.5 text-indigo-300 font-mono">{% raw %}{{variable_name}}{% endraw %}</code> to your prompt to generate dynamic input fields.
+  </p>
+</div>
+{% endif %}

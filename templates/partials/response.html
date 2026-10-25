@@ -1,0 +1,114 @@
+<div
+  class="response-card mb-6 rounded-xl border border-slate-800 bg-slate-900/60 p-5 shadow-xl backdrop-blur-sm transition-all hover:border-slate-700/80"
+  id="response-{{ timestamp }}"
+>
+  <!-- Header Bar -->
+  <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/80 pb-3">
+    <div class="flex items-center gap-2.5">
+      <!-- Provider Badge -->
+      {% if provider == 'groq' %}
+      <span class="inline-flex items-center gap-1 rounded-md border border-amber-500/20 bg-amber-500/10 px-2 py-0.5 text-xs font-semibold uppercase tracking-wider text-amber-400">
+        ⚡ Groq
+      </span>
+      {% elif provider == 'openai' %}
+      <span class="inline-flex items-center gap-1 rounded-md border border-emerald-500/20 bg-emerald-500/10 px-2 py-0.5 text-xs font-semibold uppercase tracking-wider text-emerald-400">
+        OpenAI
+      </span>
+      {% elif provider == 'anthropic' %}
+      <span class="inline-flex items-center gap-1 rounded-md border border-orange-500/20 bg-orange-500/10 px-2 py-0.5 text-xs font-semibold uppercase tracking-wider text-orange-400">
+        Anthropic
+      </span>
+      {% elif provider == 'google' %}
+      <span class="inline-flex items-center gap-1 rounded-md border border-sky-500/20 bg-sky-500/10 px-2 py-0.5 text-xs font-semibold uppercase tracking-wider text-sky-400">
+        Google
+      </span>
+      {% else %}
+      <span class="inline-flex items-center gap-1 rounded-md border border-indigo-500/20 bg-indigo-500/10 px-2 py-0.5 text-xs font-semibold uppercase tracking-wider text-indigo-400">
+        {{ provider }}
+      </span>
+      {% endif %}
+
+      <!-- Model Name -->
+      <span class="font-mono text-xs font-medium text-slate-200">
+        {{ model }}
+      </span>
+    </div>
+
+    <!-- Metrics & Actions -->
+    <div class="flex items-center gap-3 text-xs text-slate-400">
+      <span class="flex items-center gap-1 font-mono" title="Latency">
+        <span>⚡</span>
+        <span>
+          {% if latency_ms >= 1000 %}
+            {{ (latency_ms / 1000) | round(2) }}s
+          {% else %}
+            {{ latency_ms | round(0) }}ms
+          {% endif %}
+        </span>
+      </span>
+
+      <span class="flex items-center gap-1 font-mono" title="Total Tokens">
+        <span>🔢</span>
+        <span>{{ usage.total_tokens }} tokens</span>
+      </span>
+
+      <!-- Copy Button -->
+      <button
+        type="button"
+        onclick="if(window.copyResponseText){ copyResponseText(this, 'raw-content-{{ timestamp }}'); } else { copyToClipboard(document.getElementById('raw-content-{{ timestamp }}').value); }"
+        class="inline-flex items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-800/80 px-2.5 py-1 text-xs font-medium text-slate-300 hover:bg-slate-700 hover:text-white transition-all active:scale-95 group/copy"
+        title="Copy response to clipboard"
+      >
+        <span class="group-hover/copy:scale-110 transition-transform">📋</span>
+        <span>Copy</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Hidden Raw Content for Copying -->
+  <textarea id="raw-content-{{ timestamp }}" class="hidden">{{ content }}</textarea>
+
+  <!-- AI Response Content -->
+  <div class="prose prose-invert max-w-none py-4 text-sm leading-relaxed text-slate-200">
+    {% if formatted_content %}
+      {{ formatted_content | safe }}
+    {% else %}
+      {{ content }}
+    {% endif %}
+  </div>
+
+  <!-- Footer Info -->
+  <div class="flex flex-wrap items-center justify-between gap-2 border-t border-slate-800/80 pt-3 text-xs text-slate-500 font-mono">
+    <div class="flex items-center gap-2">
+      <span>📥 {{ usage.prompt_tokens }}</span>
+      <span class="text-slate-600">→</span>
+      <span>📤 {{ usage.completion_tokens }}</span>
+    </div>
+
+    <div class="flex items-center gap-3">
+      {% if history_id %}
+      <div class="flex items-center gap-1">
+        <span class="text-[10px] text-slate-500">Rate:</span>
+        <div class="flex items-center">
+          {% for i in range(1, 6) %}
+          <button
+            type="button"
+            hx-post="/history/{{ history_id }}/rate?rating={{ i }}"
+            hx-target="#history-sidebar-list"
+            onclick="this.parentElement.querySelectorAll('button').forEach((b, idx) => b.classList.toggle('text-amber-400', idx < {{ i }}));"
+            class="text-xs text-slate-600 hover:text-amber-400 px-0.5 transition-colors"
+            title="Rate {{ i }} stars"
+          >
+            ★
+          </button>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      <span class="text-[11px] text-slate-500">
+        {{ created_at_time or 'Just now' }}
+      </span>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,10 @@
+fastapi
+uvicorn[standard]
+jinja2
+python-multipart
+cryptography
+groq
+python-dotenv
+aiofiles
+pydantic-settings
+itsdangerous

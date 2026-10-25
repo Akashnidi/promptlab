@@ -1,0 +1,70 @@
+{% if error_message %}
+<div class="mb-3 rounded-lg border border-rose-500/30 bg-rose-500/10 p-2.5 text-xs text-rose-300 flex items-center justify-between">
+  <div class="flex items-center gap-2">
+    <span>⚠️</span>
+    <span>{{ error_message }}</span>
+  </div>
+  <button type="button" onclick="this.parentElement.remove()" class="text-rose-400 hover:text-rose-200">✕</button>
+</div>
+{% endif %}
+
+{% if success_message %}
+<div class="mb-3 rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-2.5 text-xs text-emerald-300 flex items-center justify-between">
+  <div class="flex items-center gap-2">
+    <span>✅</span>
+    <span>{{ success_message }}</span>
+  </div>
+  <button type="button" onclick="this.parentElement.remove()" class="text-emerald-400 hover:text-emerald-200">✕</button>
+</div>
+{% endif %}
+
+{% if files and files|length > 0 %}
+<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5">
+  {% for file in files %}
+  <div class="group relative flex items-center justify-between gap-2 rounded-lg border border-slate-800 bg-slate-950/70 p-2.5 hover:border-indigo-500/50 hover:bg-slate-900/80 transition-all shadow-sm">
+    <button
+      type="button"
+      onclick="loadFileIntoEditor('{{ file.filename }}')"
+      class="flex items-center gap-2.5 min-w-0 flex-1 text-left focus:outline-none"
+      title="Click to load {{ file.filename }} into editor"
+    >
+      <span class="text-lg flex-shrink-0">
+        {% if file.extension in ['.j2', '.jinja2'] %}🧩
+        {% elif file.extension in ['.yaml', '.yml', '.json'] %}⚙️
+        {% elif file.extension == '.md' %}📝
+        {% else %}📄{% endif %}
+      </span>
+      <div class="min-w-0 flex-1">
+        <div class="flex items-center gap-1.5">
+          <span class="truncate text-xs font-semibold text-slate-200 group-hover:text-indigo-300 transition-colors">
+            {{ file.filename }}
+          </span>
+        </div>
+        <div class="flex items-center gap-2 text-[10px] text-slate-500 font-mono mt-0.5">
+          <span class="px-1.5 py-0.5 rounded bg-slate-800/80 text-slate-400 font-semibold uppercase">{{ file.extension.replace('.', '') }}</span>
+          <span>{{ file.size_str }}</span>
+          <span>·</span>
+          <span>{{ file.modified_time }}</span>
+        </div>
+      </div>
+    </button>
+    
+    <button
+      type="button"
+      hx-delete="/files/{{ file.filename }}"
+      hx-target="#uploaded-files-container"
+      hx-confirm="Delete this template file: {{ file.filename }}?"
+      title="Delete {{ file.filename }}"
+      class="p-1.5 rounded-md text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 transition-colors opacity-70 group-hover:opacity-100 flex-shrink-0"
+    >
+      🗑️
+    </button>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="rounded-lg border border-dashed border-slate-800/80 bg-slate-950/40 p-5 text-center text-xs text-slate-500">
+  <span class="text-base mb-1 inline-block">📂</span>
+  <p>No uploaded files yet. Drag & drop or upload files above.</p>
+</div>
+{% endif %}

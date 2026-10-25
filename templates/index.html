@@ -1,0 +1,944 @@
+{% extends "base.html" %}
+
+{% block title %}PromptLab v1 — by MAx Ops{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-4xl w-full flex flex-col gap-6">
+
+  <!-- Expandable File Upload & Template Library Section -->
+  <div class="rounded-xl border border-slate-800 bg-slate-900/60 shadow-xl backdrop-blur-md overflow-hidden transition-all">
+    <div
+      class="flex items-center justify-between p-4 bg-slate-950/40 hover:bg-slate-950/60 cursor-pointer select-none transition-colors"
+      onclick="toggleFileLibrary()"
+    >
+      <div class="flex items-center gap-2.5">
+        <span class="text-lg">📁</span>
+        <h3 class="text-xs font-semibold text-slate-200 uppercase tracking-wider">
+          Prompt & Template Library <span class="text-slate-400 font-normal lowercase">(Upload Files)</span>
+        </h3>
+      </div>
+      <div class="flex items-center gap-2">
+        <span id="file-library-count" class="text-[11px] font-mono text-slate-400 bg-slate-800/60 px-2 py-0.5 rounded border border-slate-700/50">
+          .txt, .j2, .yaml, .json, .md
+        </span>
+        <span id="file-library-arrow" class="text-xs text-slate-400 transition-transform duration-200">▶</span>
+      </div>
+    </div>
+
+    <!-- Collapsible Body -->
+    <div id="file-library-body" class="hidden p-5 border-t border-slate-800/80 space-y-4">
+      <!-- Drag-and-Drop / File Upload Form -->
+      <form
+        id="file-upload-form"
+        hx-post="/files/upload"
+        hx-encoding="multipart/form-data"
+        hx-target="#uploaded-files-container"
+        hx-indicator="#upload-spinner"
+        class="flex flex-col sm:flex-row items-center gap-3 p-3.5 rounded-xl border border-dashed border-slate-700/80 bg-slate-950/70 hover:border-indigo-500/50 transition-all"
+        hx-on::after-request="if(event.detail.successful) { document.getElementById('file-upload-input').value = ''; updateSelectedFileName(document.getElementById('file-upload-input')); }"
+      >
+        <div class="flex-1 w-full flex items-center gap-3">
+          <label
+            for="file-upload-input"
+            class="flex items-center gap-2 cursor-pointer rounded-lg bg-slate-800/80 hover:bg-slate-700/80 border border-slate-600/60 px-3.5 py-2 text-xs font-medium text-slate-200 transition-colors flex-shrink-0"
+          >
+            <span>📎 Choose File</span>
+          </label>
+          <input
+            type="file"
+            id="file-upload-input"
+            name="file"
+            accept=".txt,.j2,.jinja2,.yaml,.yml,.json,.md"
+            required
+            onchange="updateSelectedFileName(this)"
+            class="hidden"
+          />
+          <span id="selected-file-label" class="text-xs text-slate-400 truncate max-w-sm font-mono">
+            Drag & drop here or browse (up to 1MB)
+          </span>
+        </div>
+
+        <div class="flex items-center gap-3 w-full sm:w-auto justify-end">
+          <div id="upload-spinner" class="htmx-indicator items-center gap-1.5 text-xs text-indigo-400 font-medium">
+            <svg class="h-4 w-4 animate-spin text-indigo-400" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+            </svg>
+            <span>Uploading...</span>
+          </div>
+
+          <button
+            type="submit"
+            class="inline-flex items-center gap-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 px-4 py-2 text-xs font-semibold text-white shadow-sm transition-all active:scale-95"
+          >
+            <span>⬆️</span>
+            <span>Upload File</span>
+          </button>
+        </div>
+      </form>
+
+      <!-- Toast / Notification container -->
+      <div id="file-toast" class="hidden rounded-lg p-2.5 text-xs font-medium flex items-center justify-between"></div>
+
+      <!-- File Listing Container -->
+      <div id="uploaded-files-container" hx-get="/files/list" hx-trigger="load">
+        <div class="text-center py-4 text-xs text-slate-500 font-mono">
+          <span class="animate-pulse">Loading saved files...</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Prompt Form Card -->
+  <form
+    id="prompt-form"
+    onsubmit="return false;"
+    class="rounded-xl border border-slate-800 bg-slate-900/60 p-5 shadow-2xl backdrop-blur-md space-y-5"
+  >
+    <!-- MODE SWITCHER TAB BAR -->
+    <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/80 pb-4">
+      <div class="flex items-center gap-1.5 p-1 rounded-xl bg-slate-950/80 border border-slate-800">
+        <button
+          type="button"
+          id="mode-simple-btn"
+          onclick="switchMode('simple')"
+          class="px-3.5 py-1.5 rounded-lg text-xs font-semibold text-white bg-indigo-600 shadow-sm transition-all"
+        >
+          ✏️ Simple Prompt
+        </button>
+        <button
+          type="button"
+          id="mode-template-btn"
+          onclick="switchMode('template')"
+          class="px-3.5 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white transition-all"
+        >
+          🧩 Prompt Template
+        </button>
+        <button
+          type="button"
+          id="mode-arena-btn"
+          onclick="switchMode('arena')"
+          class="px-3.5 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white transition-all flex items-center gap-1.5"
+        >
+          <span>⚖️</span>
+          <span>LLM Arena <span class="text-[10px] text-amber-400/90 font-mono font-normal">(Optional)</span></span>
+        </button>
+      </div>
+
+      <input type="hidden" id="prompt-mode-input" name="prompt_mode" value="simple">
+      <input type="hidden" id="template-name-input" name="template_name" value="">
+
+      <!-- Bundled Templates Selector (Visible only in Template mode) -->
+      <div id="template-selector-container" class="hidden flex items-center gap-2">
+        <label for="bundled-template-select" class="text-xs text-slate-400 font-medium flex items-center gap-1">
+          <span>📚</span>
+          <span>Load Template:</span>
+        </label>
+        <select
+          id="bundled-template-select"
+          onchange="loadBundledTemplate(this.value)"
+          class="rounded-lg border border-slate-700 bg-slate-950 px-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500 font-medium transition-colors"
+        >
+          <option value="">Choose a bundled template...</option>
+          <option value="summarize">Summarize</option>
+          <option value="chain_of_thought">Chain of Thought</option>
+          <option value="few_shot">Few-Shot Sentiment</option>
+          <option value="code_review">Code Review</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- AMBER TOKEN USAGE WARNING BANNER (Visible only in Arena tab) -->
+    <div id="arena-warning-banner" class="hidden rounded-xl border border-amber-500/40 bg-amber-500/10 p-4 text-xs text-amber-200 flex items-start gap-3 shadow-lg shadow-amber-950/20 animate-fade-in">
+      <span class="text-xl flex-shrink-0">⚠️</span>
+      <div class="space-y-1">
+        <span class="font-bold text-amber-300 uppercase tracking-wider text-[11px] block">Token Usage Notice:</span>
+        <p class="text-amber-200/90 leading-relaxed text-xs">
+          The Arena executes your prompt concurrently across all chosen models. This multiplies token usage and consumes API rate limits faster. Select 2 to 3 models only when you specifically need to compare outputs.
+        </p>
+      </div>
+    </div>
+
+    <!-- ARENA MODEL SELECTION CONTAINER (Visible only in Arena tab) -->
+    <div id="arena-models-container" class="hidden rounded-xl border border-slate-800 bg-slate-950/60 p-4 space-y-3 animate-fade-in">
+      <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800/80 pb-2.5">
+        <div class="flex items-center gap-2">
+          <span class="text-sm">🎯</span>
+          <span class="text-xs font-semibold text-slate-200 uppercase tracking-wider">Choose Comparison Models (Groq)</span>
+        </div>
+        <span id="arena-counter-badge" class="font-mono text-xs px-2.5 py-1 rounded-full bg-slate-800 border border-slate-700 text-slate-400">
+          Selected: 0/3 (minimum 2 required)
+        </span>
+      </div>
+
+      <!-- Checkbox Grid -->
+      <div
+        class="grid grid-cols-1 sm:grid-cols-2 gap-2.5"
+        id="arena-checkboxes-grid"
+        hx-get="/prompt/arena-models"
+        hx-trigger="modelsSynced from:body"
+      >
+        <label class="arena-model-option flex items-start gap-3 p-3 rounded-lg border border-slate-800 bg-slate-900/60 hover:bg-slate-900 hover:border-slate-700 cursor-pointer select-none transition-all">
+          <input
+            type="checkbox"
+            name="models"
+            value="allam-2-7b"
+            onchange="handleArenaModelChange(this)"
+            class="mt-0.5 rounded border-slate-700 bg-slate-950 text-indigo-600 focus:ring-indigo-500 h-4 w-4"
+          />
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-slate-200 font-mono">Allam 2 7B</span>
+              <span class="text-[10px] uppercase font-mono px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">FAST</span>
+            </div>
+            <p class="text-[11px] text-slate-400 mt-0.5">High-efficiency multilingual language model</p>
+          </div>
+        </label>
+
+        <label class="arena-model-option flex items-start gap-3 p-3 rounded-lg border border-slate-800 bg-slate-900/60 hover:bg-slate-900 hover:border-slate-700 cursor-pointer select-none transition-all">
+          <input
+            type="checkbox"
+            name="models"
+            value="qwen/qwen3.8-27b"
+            onchange="handleArenaModelChange(this)"
+            class="mt-0.5 rounded border-slate-700 bg-slate-950 text-indigo-600 focus:ring-indigo-500 h-4 w-4"
+          />
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-slate-200 font-mono">Qwen 3.8 27B</span>
+              <span class="text-[10px] uppercase font-mono px-1.5 py-0.2 rounded bg-purple-500/10 text-purple-400 border border-purple-500/20">REASONING</span>
+            </div>
+            <p class="text-[11px] text-slate-400 mt-0.5">Advanced reasoning and mathematical reasoning model</p>
+          </div>
+        </label>
+
+        <label class="arena-model-option flex items-start gap-3 p-3 rounded-lg border border-slate-800 bg-slate-900/60 hover:bg-slate-900 hover:border-slate-700 cursor-pointer select-none transition-all">
+          <input
+            type="checkbox"
+            name="models"
+            value="openai/gpt-oss-20b"
+            onchange="handleArenaModelChange(this)"
+            class="mt-0.5 rounded border-slate-700 bg-slate-950 text-indigo-600 focus:ring-indigo-500 h-4 w-4"
+          />
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-slate-200 font-mono">GPT OSS 20B</span>
+              <span class="text-[10px] uppercase font-mono px-1.5 py-0.2 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">GENERAL</span>
+            </div>
+            <p class="text-[11px] text-slate-400 mt-0.5">Open weights general instruction model</p>
+          </div>
+        </label>
+
+        <label class="arena-model-option flex items-start gap-3 p-3 rounded-lg border border-slate-800 bg-slate-900/60 hover:bg-slate-900 hover:border-slate-700 cursor-pointer select-none transition-all">
+          <input
+            type="checkbox"
+            name="models"
+            value="openai/gpt-oss-120b"
+            onchange="handleArenaModelChange(this)"
+            class="mt-0.5 rounded border-slate-700 bg-slate-950 text-indigo-600 focus:ring-indigo-500 h-4 w-4"
+          />
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-slate-200 font-mono">GPT OSS 120B</span>
+              <span class="text-[10px] uppercase font-mono px-1.5 py-0.2 rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">FLAGSHIP</span>
+            </div>
+            <p class="text-[11px] text-slate-400 mt-0.5">Flagship 120B reasoning and synthesis model</p>
+          </div>
+        </label>
+      </div>
+    </div>
+
+    <!-- CONTROLS BAR -->
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-12 items-end pb-4 border-b border-slate-800/80">
+      
+      <!-- Provider Selector -->
+      <div class="sm:col-span-4">
+        <label for="provider-select" class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">
+          Provider
+        </label>
+        <div class="relative">
+          <select
+            id="provider-select"
+            name="provider"
+            class="w-full appearance-none rounded-lg border border-slate-700 bg-slate-950/90 px-3.5 py-2 text-sm text-slate-100 font-medium focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-colors"
+            hx-get="/prompt/models"
+            hx-target="#model-select"
+            hx-trigger="change"
+          >
+            <option value="groq" selected>⚡ Groq</option>
+            <option value="openai">OpenAI</option>
+            <option value="anthropic">Anthropic</option>
+            <option value="google">Google Gemini</option>
+          </select>
+          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Model Selector (Hidden in Arena mode) -->
+      <div id="single-model-selector-container" class="sm:col-span-5">
+        <div class="flex items-center justify-between mb-1">
+          <label for="model-select" class="text-xs font-semibold text-neutral-400 uppercase tracking-wider">Model</label>
+          <button type="button" 
+                  id="btn-sync-models"
+                  title="Sync live models from Groq"
+                  hx-get="/prompt/models"
+                  hx-include="#provider-select"
+                  hx-target="#model-select"
+                  hx-indicator="#sync-spinner"
+                  class="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded bg-neutral-800 hover:bg-neutral-700 text-neutral-300 border border-neutral-700 hover:border-neutral-600 transition">
+            <span id="sync-icon">🔄</span>
+            <span id="sync-spinner" class="htmx-indicator animate-spin">⏳</span>
+            <span>Sync Models</span>
+          </button>
+        </div>
+        <div class="relative">
+          <select
+            id="model-select"
+            name="model"
+            class="w-full appearance-none rounded-lg border border-slate-700 bg-slate-950/90 px-3.5 py-2 text-sm text-slate-100 font-mono text-xs focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-colors"
+          >
+            <option value="allam-2-7b" selected>allam-2-7b (Default)</option>
+            <option value="qwen/qwen3.8-27b">qwen/qwen3.8-27b</option>
+            <option value="openai/gpt-oss-20b">openai/gpt-oss-20b</option>
+            <option value="openai/gpt-oss-120b">openai/gpt-oss-120b</option>
+          </select>
+          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Temperature Slider -->
+      <div class="sm:col-span-3">
+        <div class="flex items-center justify-between mb-1.5">
+          <label for="temp-slider" class="text-xs font-semibold uppercase tracking-wider text-slate-400">
+            Temp
+          </label>
+          <span id="temp-val" class="font-mono text-xs font-bold text-indigo-400">0.7</span>
+        </div>
+        <input
+          type="range"
+          id="temp-slider"
+          name="temperature"
+          min="0.0"
+          max="2.0"
+          step="0.1"
+          value="0.7"
+          oninput="document.getElementById('temp-val').textContent = this.value"
+          class="w-full accent-indigo-500 cursor-pointer h-1.5 bg-slate-800 rounded-lg"
+        />
+      </div>
+
+    </div>
+
+    <!-- MIDDLE SECTION — Prompt Area -->
+    <div class="space-y-3">
+      
+      <!-- Collapsible System Prompt -->
+      <div>
+        <button
+          type="button"
+          onclick="toggleSystemPrompt()"
+          class="inline-flex items-center gap-1.5 text-xs font-medium text-slate-400 hover:text-indigo-400 transition-colors"
+        >
+          <span id="sys-prompt-arrow" class="transition-transform duration-200">▶</span>
+          <span>⚙️ System Prompt (optional)</span>
+        </button>
+
+        <div id="system-prompt-container" class="hidden mt-2">
+          <textarea
+            id="system-prompt-input"
+            name="system_prompt"
+            rows="3"
+            placeholder="You are an expert AI assistant specialized in..."
+            class="w-full rounded-lg border border-slate-700/80 bg-slate-950/80 p-3 text-xs font-mono text-slate-200 placeholder-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 resize-y transition-all"
+          ></textarea>
+        </div>
+      </div>
+
+      <!-- Main User Prompt Textarea -->
+      <div class="space-y-1.5">
+        <label for="prompt-input" class="sr-only">User Prompt</label>
+        <textarea
+          id="prompt-input"
+          name="prompt"
+          rows="6"
+          required
+          oninput="updateCountAndResize(this); triggerDetectVariables();"
+          placeholder="Enter your prompt here... (Ctrl+Enter to send)"
+          class="w-full rounded-xl border border-slate-700/90 bg-slate-950/90 p-4 text-sm font-sans text-slate-100 placeholder-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 resize-y transition-all shadow-inner"
+        ></textarea>
+
+        <!-- Live Character, Word & Token Count -->
+        <div class="flex items-center justify-between text-xs text-slate-500 px-1 font-mono">
+          <span id="char-count">0 chars · 0 words · ~0 tokens</span>
+          <span class="text-[11px] text-slate-600">Press Ctrl+Enter to send</span>
+        </div>
+      </div>
+
+      <!-- DYNAMIC TEMPLATE VARIABLES CONTAINER (Visible in Template Mode) -->
+      <div id="template-variables-container" class="hidden"></div>
+
+      <!-- TEMPLATE PREVIEW CONTAINER -->
+      <div id="template-preview-container"></div>
+
+    </div>
+
+    <!-- BOTTOM SECTION — Action Bar -->
+    <div class="flex flex-wrap items-center justify-between gap-4 pt-3 border-t border-slate-800/80">
+      
+      <!-- Max Tokens Input -->
+      <div class="flex items-center gap-2">
+        <label for="max-tokens" class="text-xs font-semibold uppercase tracking-wider text-slate-400">
+          Max Tokens:
+        </label>
+        <input
+          type="number"
+          id="max-tokens"
+          name="max_tokens"
+          min="100"
+          max="8000"
+          value="1024"
+          class="w-24 rounded-lg border border-slate-700 bg-slate-950/90 px-2.5 py-1.5 text-xs font-mono text-slate-100 text-center focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+        />
+      </div>
+
+      <!-- Actions & HTMX Indicator -->
+      <div class="flex items-center gap-3">
+        <!-- Interactive Preview Button (Visible in Template Mode) -->
+        <button
+          type="button"
+          id="preview-btn"
+          hx-post="/templates/preview"
+          hx-target="#template-preview-container"
+          hx-include="#prompt-form"
+          class="hidden inline-flex items-center gap-1.5 rounded-lg border border-sky-500/30 bg-sky-500/10 px-3.5 py-2 text-xs font-semibold text-sky-300 hover:bg-sky-500/20 transition-all active:scale-95 shadow-sm"
+        >
+          <span>👁️</span>
+          <span>Preview Rendered Prompt</span>
+        </button>
+
+        <!-- Animated Loading Spinner -->
+        <div id="loading-spinner" class="htmx-indicator items-center gap-2 text-xs font-medium text-indigo-400">
+          <svg class="h-4 w-4 animate-spin text-indigo-400" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+          </svg>
+          <span class="animate-pulse">Thinking...</span>
+        </div>
+
+        <!-- Send Button -->
+        <button
+          id="btn-send-prompt"
+          type="button"
+          hx-post="/prompt/execute"
+          hx-target="#response-area"
+          hx-swap="afterbegin"
+          hx-include="#prompt-form"
+          hx-indicator="#loading-spinner"
+          class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-indigo-600/30 hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-slate-900 transition-all active:scale-[0.98]"
+        >
+          <span>Send</span>
+          <span class="text-xs">➤</span>
+        </button>
+      </div>
+
+    </div>
+  </form>
+
+  <!-- RESPONSE AREA -->
+  <div class="flex flex-col gap-3">
+    <div class="flex items-center justify-between px-1">
+      <h3 class="text-xs font-semibold uppercase tracking-wider text-slate-400">Response Feed</h3>
+      <button
+        type="button"
+        onclick="clearResponses()"
+        class="text-xs text-slate-500 hover:text-slate-300 transition-colors"
+      >
+        Clear Responses
+      </button>
+    </div>
+
+    <div id="response-area" class="flex flex-col">
+      <!-- Empty State (shown when no responses exist) -->
+      <div id="empty-state" class="rounded-xl border border-dashed border-slate-800 bg-slate-900/20 p-10 text-center">
+        <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-500/10 text-2xl border border-indigo-500/20 mb-3 shadow-inner">
+          🧪
+        </div>
+        <h4 class="text-base font-semibold text-white">Prompt Playground Ready</h4>
+        <p class="text-xs text-slate-400 mt-1 max-w-sm mx-auto">
+          Send your first prompt or use dynamic templates to build parameterized AI workflows.
+        </p>
+        
+        <div class="mt-6 inline-flex flex-col items-start gap-1.5 rounded-lg border border-slate-800/80 bg-slate-950/60 p-3.5 text-left text-xs text-slate-400">
+          <span class="font-semibold text-slate-300 text-[11px] uppercase tracking-wider mb-1">Quick Tips:</span>
+          <div class="flex items-center gap-2">
+            <span class="text-indigo-400">•</span>
+            <span>Switch to <strong>Prompt Template</strong> mode to detect dynamic variables like <code class="text-indigo-300 font-mono">{% raw %}{{audience}}{% endraw %}</code>.</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-indigo-400">•</span>
+            <span>Click <strong>Preview Rendered Prompt</strong> to view the interpolated prompt before sending.</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-indigo-400">•</span>
+            <span>Press <kbd class="px-1 py-0.5 rounded bg-slate-800 text-[10px] text-slate-200">Ctrl</kbd> + <kbd class="px-1 py-0.5 rounded bg-slate-800 text-[10px] text-slate-200">Enter</kbd> to rapidly dispatch prompts.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  let detectDebounceTimer = null;
+
+  // Mode Switcher: Simple vs Template vs Arena
+  function switchMode(mode) {
+    const simpleBtn = document.getElementById('mode-simple-btn');
+    const templateBtn = document.getElementById('mode-template-btn');
+    const arenaBtn = document.getElementById('mode-arena-btn');
+    const modeInput = document.getElementById('prompt-mode-input');
+    const selectorContainer = document.getElementById('template-selector-container');
+    const varsContainer = document.getElementById('template-variables-container');
+    const previewContainer = document.getElementById('template-preview-container');
+    const previewBtn = document.getElementById('preview-btn');
+    const singleModelContainer = document.getElementById('single-model-selector-container');
+    const arenaWarningBanner = document.getElementById('arena-warning-banner');
+    const arenaModelsContainer = document.getElementById('arena-models-container');
+    const sendBtn = document.getElementById('btn-send-prompt');
+
+    // Reset all tabs
+    [simpleBtn, templateBtn, arenaBtn].forEach(btn => {
+      if (!btn) return;
+      btn.className = 'px-3.5 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white transition-all flex items-center gap-1.5';
+    });
+
+    if (mode === 'arena') {
+      modeInput.value = 'arena';
+      if (arenaBtn) {
+        arenaBtn.className = 'px-3.5 py-1.5 rounded-lg text-xs font-semibold text-white bg-amber-600 shadow-sm transition-all flex items-center gap-1.5';
+      }
+
+      if (arenaWarningBanner) arenaWarningBanner.classList.remove('hidden');
+      if (arenaModelsContainer) arenaModelsContainer.classList.remove('hidden');
+      if (singleModelContainer) singleModelContainer.classList.add('hidden');
+      if (selectorContainer) selectorContainer.classList.add('hidden');
+      if (varsContainer) varsContainer.classList.add('hidden');
+      if (previewBtn) previewBtn.classList.add('hidden');
+      if (previewContainer) previewContainer.innerHTML = '';
+
+      if (sendBtn) {
+        sendBtn.setAttribute('hx-post', '/prompt/compare');
+        sendBtn.innerHTML = '<span>⚔️ Run Arena Comparison</span> <span class="text-xs">🔥</span>';
+        htmx.process(sendBtn);
+      }
+      updateArenaButtonState();
+
+    } else if (mode === 'template') {
+      modeInput.value = 'template';
+      if (templateBtn) {
+        templateBtn.className = 'px-3.5 py-1.5 rounded-lg text-xs font-semibold text-white bg-indigo-600 shadow-sm transition-all flex items-center gap-1.5';
+      }
+
+      if (arenaWarningBanner) arenaWarningBanner.classList.add('hidden');
+      if (arenaModelsContainer) arenaModelsContainer.classList.add('hidden');
+      if (singleModelContainer) singleModelContainer.classList.remove('hidden');
+      if (selectorContainer) selectorContainer.classList.remove('hidden');
+      if (varsContainer) varsContainer.classList.remove('hidden');
+      if (previewBtn) previewBtn.classList.remove('hidden');
+
+      if (sendBtn) {
+        sendBtn.setAttribute('hx-post', '/prompt/execute');
+        sendBtn.innerHTML = '<span>Send</span> <span class="text-xs">➤</span>';
+        sendBtn.disabled = false;
+        sendBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        sendBtn.title = '';
+        htmx.process(sendBtn);
+      }
+
+      triggerDetectVariables();
+
+    } else {
+      // Default: Simple Mode
+      modeInput.value = 'simple';
+      if (simpleBtn) {
+        simpleBtn.className = 'px-3.5 py-1.5 rounded-lg text-xs font-semibold text-white bg-indigo-600 shadow-sm transition-all flex items-center gap-1.5';
+      }
+
+      if (arenaWarningBanner) arenaWarningBanner.classList.add('hidden');
+      if (arenaModelsContainer) arenaModelsContainer.classList.add('hidden');
+      if (singleModelContainer) singleModelContainer.classList.remove('hidden');
+      if (selectorContainer) selectorContainer.classList.add('hidden');
+      if (varsContainer) varsContainer.classList.add('hidden');
+      if (previewBtn) previewBtn.classList.add('hidden');
+      if (previewContainer) previewContainer.innerHTML = '';
+
+      if (sendBtn) {
+        sendBtn.setAttribute('hx-post', '/prompt/execute');
+        sendBtn.innerHTML = '<span>Send</span> <span class="text-xs">➤</span>';
+        sendBtn.disabled = false;
+        sendBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        sendBtn.title = '';
+        htmx.process(sendBtn);
+      }
+    }
+  }
+
+  // Handle Arena Model checkbox selection changes
+  function handleArenaModelChange(changedInput) {
+    const checkboxes = document.querySelectorAll('input[name="models"]');
+    const checked = Array.from(checkboxes).filter(cb => cb.checked);
+    const count = checked.length;
+
+    // Guardrail: Max 3 models
+    if (count >= 3) {
+      checkboxes.forEach(cb => {
+        if (!cb.checked) {
+          cb.disabled = true;
+          const parent = cb.closest('label');
+          if (parent) parent.classList.add('opacity-40', 'cursor-not-allowed');
+        }
+      });
+    } else {
+      checkboxes.forEach(cb => {
+        cb.disabled = false;
+        const parent = cb.closest('label');
+        if (parent) parent.classList.remove('opacity-40', 'cursor-not-allowed');
+      });
+    }
+
+    // Highlight selected options visually
+    checkboxes.forEach(cb => {
+      const parent = cb.closest('label');
+      if (!parent) return;
+      if (cb.checked) {
+        parent.classList.add('border-indigo-500/70', 'bg-indigo-950/20');
+      } else {
+        parent.classList.remove('border-indigo-500/70', 'bg-indigo-950/20');
+      }
+    });
+
+    // Update selection badge counter
+    const badge = document.getElementById('arena-counter-badge');
+    if (badge) {
+      if (count === 0) {
+        badge.textContent = 'Selected: 0/3 (minimum 2 required)';
+        badge.className = 'font-mono text-xs px-2.5 py-1 rounded-full bg-slate-800 border border-slate-700 text-slate-400';
+      } else if (count === 1) {
+        badge.textContent = 'Selected: 1/3 (need 1 more)';
+        badge.className = 'font-mono text-xs px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 font-medium';
+      } else if (count === 2) {
+        badge.textContent = 'Selected: 2/3 (Ready!)';
+        badge.className = 'font-mono text-xs px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 font-semibold';
+      } else {
+        badge.textContent = 'Selected: 3/3 (Max limit reached)';
+        badge.className = 'font-mono text-xs px-2.5 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 font-bold';
+      }
+    }
+
+    updateArenaButtonState();
+  }
+
+  // Update submit button state in Arena mode
+  function updateArenaButtonState() {
+    const mode = document.getElementById('prompt-mode-input').value;
+    const sendBtn = document.getElementById('btn-send-prompt');
+    if (!sendBtn) return;
+
+    if (mode === 'arena') {
+      const checkedCount = document.querySelectorAll('input[name="models"]:checked').length;
+      if (checkedCount < 2) {
+        sendBtn.disabled = true;
+        sendBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        sendBtn.title = 'Select at least 2 models to run Arena comparison';
+      } else {
+        sendBtn.disabled = false;
+        sendBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        sendBtn.title = `Run comparison across ${checkedCount} models`;
+      }
+    } else {
+      sendBtn.disabled = false;
+      sendBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+      sendBtn.title = '';
+    }
+  }
+
+  // Load a Bundled Template from server
+  function loadBundledTemplate(templateId) {
+    if (!templateId) return;
+    document.getElementById('template-name-input').value = templateId;
+
+    fetch(`/templates/load/${templateId}`)
+      .then(resp => {
+        if (!resp.ok) throw new Error('Template not found');
+        return resp.text();
+      })
+      .then(content => {
+        const promptInput = document.getElementById('prompt-input');
+        promptInput.value = content;
+        updateCountAndResize(promptInput);
+        triggerDetectVariables();
+      })
+      .catch(err => {
+        console.error('Failed to load bundled template:', err);
+      });
+  }
+
+  // Debounced variable scanner in template mode
+  function triggerDetectVariables() {
+    const mode = document.getElementById('prompt-mode-input').value;
+    if (mode !== 'template') return;
+
+    clearTimeout(detectDebounceTimer);
+    detectDebounceTimer = setTimeout(() => {
+      const text = document.getElementById('prompt-input').value;
+      htmx.ajax('POST', '/templates/detect-variables', {
+        target: '#template-variables-container',
+        values: { template_text: text }
+      });
+    }, 400);
+  }
+
+  // Toggle System Prompt visibility
+  function toggleSystemPrompt() {
+    const container = document.getElementById('system-prompt-container');
+    const arrow = document.getElementById('sys-prompt-arrow');
+    if (!container) return;
+    
+    if (container.classList.contains('hidden')) {
+      container.classList.remove('hidden');
+      arrow.textContent = '▼';
+    } else {
+      container.classList.add('hidden');
+      arrow.textContent = '▶';
+    }
+  }
+
+  // Update Char/Word/Token Count & Auto-resize
+  function updateCountAndResize(textarea) {
+    if (window.updateCounterAndResize) {
+      window.updateCounterAndResize(textarea);
+      return;
+    }
+    const countEl = document.getElementById('char-count');
+    const val = textarea.value || '';
+    const chars = val.length;
+    const words = val.trim().length > 0 ? val.trim().split(/\s+/).length : 0;
+    const tokens = Math.ceil(chars / 4);
+    if (countEl) {
+      countEl.textContent = `${chars.toLocaleString()} chars · ${words.toLocaleString()} words · ~${tokens.toLocaleString()} tokens`;
+    }
+
+    // Auto-resize
+    textarea.style.height = 'auto';
+    textarea.style.height = Math.max(120, textarea.scrollHeight) + 'px';
+  }
+
+  // Copy Response Text to Clipboard
+  function copyResponseText(button, textareaId) {
+    const textarea = document.getElementById(textareaId);
+    if (!textarea) return;
+
+    if (window.copyToClipboard) {
+      window.copyToClipboard(textarea.value, "Response copied to clipboard!");
+    } else {
+      navigator.clipboard.writeText(textarea.value);
+    }
+
+    const original = button.innerHTML;
+    button.innerHTML = '<span>✅</span><span>Copied!</span>';
+    button.classList.add('border-emerald-500/40', 'text-emerald-300');
+    setTimeout(() => {
+      button.innerHTML = original;
+      button.classList.remove('border-emerald-500/40', 'text-emerald-300');
+    }, 1800);
+  }
+
+  // Clear Responses & Restore Empty State
+  function clearResponses() {
+    const area = document.getElementById('response-area');
+    if (!area) return;
+    area.innerHTML = `
+      <div id="empty-state" class="rounded-xl border border-dashed border-slate-800 bg-slate-900/20 p-10 text-center">
+        <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-500/10 text-2xl border border-indigo-500/20 mb-3 shadow-inner">
+          🧪
+        </div>
+        <h4 class="text-base font-semibold text-white">Prompt Playground Ready</h4>
+        <p class="text-xs text-slate-400 mt-1 max-w-sm mx-auto">
+          Send your first prompt to see the AI response here.
+        </p>
+      </div>
+    `;
+  }
+
+  // Toggle File Library panel visibility
+  function toggleFileLibrary() {
+    const body = document.getElementById('file-library-body');
+    const arrow = document.getElementById('file-library-arrow');
+    if (!body) return;
+    if (body.classList.contains('hidden')) {
+      body.classList.remove('hidden');
+      if (arrow) arrow.textContent = '▼';
+    } else {
+      body.classList.add('hidden');
+      if (arrow) arrow.textContent = '▶';
+    }
+  }
+
+  // Update file input filename label
+  function updateSelectedFileName(input) {
+    const label = document.getElementById('selected-file-label');
+    if (!label) return;
+    if (input && input.files && input.files.length > 0) {
+      const f = input.files[0];
+      const kb = (f.size / 1024).toFixed(1);
+      label.textContent = `${f.name} (${kb} KB)`;
+      label.classList.add('text-indigo-300');
+      label.classList.remove('text-slate-400');
+    } else {
+      label.textContent = 'Drag & drop here or browse (up to 1MB)';
+      label.classList.remove('text-indigo-300');
+      label.classList.add('text-slate-400');
+    }
+  }
+
+  // Load an uploaded file into the editor
+  function loadFileIntoEditor(filename) {
+    if (!filename) return;
+
+    fetch(`/files/content/${encodeURIComponent(filename)}`)
+      .then(resp => {
+        if (!resp.ok) throw new Error('Failed to read file content');
+        return resp.json();
+      })
+      .then(data => {
+        const promptInput = document.getElementById('prompt-input');
+        if (!promptInput) return;
+
+        // 1. Populate prompt input
+        promptInput.value = data.content || '';
+        updateCountAndResize(promptInput);
+
+        // 2. If .j2/.jinja2 or contains template braces, switch to template mode
+        const ext = (data.extension || '').toLowerCase();
+        const hasTemplateVars = (data.content || '').indexOf('{' + '{') !== -1;
+        const isTemplate = ext === '.j2' || ext === '.jinja2' || hasTemplateVars;
+
+        if (isTemplate) {
+          switchMode('template');
+        }
+
+        // 3. Dispatch input and keyup events
+        promptInput.dispatchEvent(new Event('input', { bubbles: true }));
+        promptInput.dispatchEvent(new Event('keyup', { bubbles: true }));
+
+        // 4. Trigger variable detection
+        if (isTemplate) {
+          triggerDetectVariables();
+        }
+
+        // 5. Show quick notification
+        showFileNotification(`Loaded ${filename} into editor`, 'success');
+      })
+      .catch(err => {
+        console.error('Error loading file into editor:', err);
+        showFileNotification(`Error loading ${filename}: ${err.message}`, 'error');
+      });
+  }
+
+  // Quick notification for file library actions
+  function showFileNotification(msg, type = 'success') {
+    if (window.showToast) {
+      window.showToast(msg, type);
+    }
+    const toast = document.getElementById('file-toast');
+    if (!toast) return;
+
+    toast.className = 'rounded-lg p-2.5 text-xs font-medium flex items-center justify-between border';
+    if (type === 'success') {
+      toast.classList.add('bg-emerald-500/10', 'border-emerald-500/30', 'text-emerald-300');
+      toast.innerHTML = `<span>✅ ${msg}</span><button type="button" onclick="this.parentElement.classList.add('hidden')" class="text-emerald-400 hover:text-emerald-200">✕</button>`;
+    } else {
+      toast.classList.add('bg-rose-500/10', 'border-rose-500/30', 'text-rose-300');
+      toast.innerHTML = `<span>⚠️ ${msg}</span><button type="button" onclick="this.parentElement.classList.add('hidden')" class="text-rose-400 hover:text-rose-200">✕</button>`;
+    }
+    toast.classList.remove('hidden');
+
+    setTimeout(() => {
+      if (toast) toast.classList.add('hidden');
+    }, 3500);
+  }
+
+  // Keyboard shortcut: Ctrl+Enter sends prompt
+  document.addEventListener('DOMContentLoaded', function() {
+    const promptInput = document.getElementById('prompt-input');
+    if (promptInput) {
+      promptInput.addEventListener('keydown', function(e) {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+          e.preventDefault();
+          const sendBtn = document.getElementById('btn-send-prompt') || document.getElementById('send-button');
+          if (sendBtn) {
+            sendBtn.click();
+          }
+        }
+      });
+    }
+
+    // Drag-and-drop for file upload form
+    const dropForm = document.getElementById('file-upload-form');
+    if (dropForm) {
+      ['dragenter', 'dragover'].forEach(eventName => {
+        dropForm.addEventListener(eventName, (e) => {
+          e.preventDefault();
+          dropForm.classList.add('border-indigo-500', 'bg-slate-900/90');
+        });
+      });
+      ['dragleave', 'drop'].forEach(eventName => {
+        dropForm.addEventListener(eventName, (e) => {
+          e.preventDefault();
+          dropForm.classList.remove('border-indigo-500', 'bg-slate-900/90');
+        });
+      });
+      dropForm.addEventListener('drop', (e) => {
+        e.preventDefault();
+        const droppedFiles = e.dataTransfer.files;
+        if (droppedFiles && droppedFiles.length > 0) {
+          const fileInput = document.getElementById('file-upload-input');
+          if (fileInput) {
+            fileInput.files = droppedFiles;
+            updateSelectedFileName(fileInput);
+            htmx.trigger(dropForm, 'submit');
+          }
+        }
+      });
+    }
+
+    // Hide empty state when a response is loaded
+    document.body.addEventListener('htmx:afterOnLoad', function(evt) {
+      if (evt.detail.target && evt.detail.target.id === 'response-area') {
+        const emptyState = document.getElementById('empty-state');
+        if (emptyState) {
+          emptyState.style.display = 'none';
+        }
+      }
+    });
+
+    // Refresh Arena model counter badge when checkboxes grid is swapped
+    document.body.addEventListener('htmx:afterSwap', function(evt) {
+      if (evt.detail.target && evt.detail.target.id === 'arena-checkboxes-grid') {
+        handleArenaModelChange();
+      }
+    });
+  });
+</script>
+{% endblock %}

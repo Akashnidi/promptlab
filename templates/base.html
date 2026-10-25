@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en" class="dark h-full bg-slate-950 text-slate-100">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}PromptLab v1 — by MAx Ops{% endblock %}</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- HTMX CDN -->
+  <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+
+  <!-- Theme Init Script to avoid FOUC -->
+  <script>
+    (function() {
+      try {
+        const t = localStorage.getItem('promptlab_theme') || 'dark';
+        if (t === 'light') {
+          document.documentElement.classList.add('light-theme');
+          document.documentElement.classList.remove('dark');
+        }
+      } catch (e) {}
+    })();
+  </script>
+
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="/static/style.css">
+  {% block head %}{% endblock %}
+</head>
+<body class="h-full flex flex-col bg-slate-950 antialiased selection:bg-indigo-500/30 selection:text-indigo-200">
+
+  <!-- Top Navigation Bar -->
+  <header class="border-b border-slate-800/80 bg-slate-900/60 backdrop-blur-md sticky top-0 z-40">
+    <div class="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:px-6">
+      <div class="flex items-center gap-3">
+        <!-- Logo -->
+        <a href="/" class="flex items-center gap-2 font-bold text-lg tracking-tight text-white group">
+          <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-tr from-indigo-600 to-violet-500 shadow-md shadow-indigo-500/20 group-hover:scale-105 transition-transform">
+            <span class="text-amber-300 text-sm font-bold">⚡</span>
+          </div>
+          <span class="bg-gradient-to-r from-white via-slate-100 to-slate-300 bg-clip-text text-transparent font-extrabold tracking-tight">MAx OPS</span>
+          <span class="text-neutral-500 mx-1.5">/</span>
+          <span class="font-semibold text-white">PromptLab</span>
+          <span class="text-xs px-2 py-0.5 ml-1.5 rounded-full bg-indigo-900/60 text-indigo-300 border border-indigo-700 font-mono">v1</span>
+        </a>
+      </div>
+
+      <!-- Navigation Links -->
+      <nav class="flex items-center gap-1 sm:gap-2 text-sm font-medium">
+        <a href="#history" class="rounded-lg px-3 py-1.5 text-slate-300 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-1.5">
+          <svg class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span>History</span>
+        </a>
+        <a href="/settings" class="rounded-lg px-3 py-1.5 text-slate-300 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-1.5">
+          <svg class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+          <span>Settings</span>
+        </a>
+
+        <div class="h-4 w-[1px] bg-slate-800 mx-1"></div>
+
+        <!-- Keyboard Shortcuts Button -->
+        <button
+          type="button"
+          onclick="toggleShortcutsModal()"
+          class="rounded-lg px-2.5 py-1.5 text-slate-300 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-1.5 text-xs font-medium border border-slate-700/60"
+          title="Keyboard Shortcuts ([⌨️ Shortcuts])"
+        >
+          <span>⌨️</span>
+          <span class="hidden sm:inline">Shortcuts</span>
+        </button>
+
+        <!-- Theme Toggle Button -->
+        <button
+          type="button"
+          id="theme-toggle-btn"
+          onclick="toggleTheme()"
+          class="rounded-lg p-1.5 text-slate-300 hover:text-white hover:bg-slate-800 transition-colors flex items-center justify-center text-sm border border-slate-700/60"
+          title="Toggle Dark / Light Theme"
+        >
+          <span id="theme-toggle-icon">☀️</span>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Body Content: Sidebar + Main Content Area -->
+  <div class="flex-1 flex overflow-hidden">
+    <!-- Sidebar (History) -->
+    <aside id="sidebar" class="w-72 sm:w-80 border-r border-slate-800/80 bg-slate-900/40 flex flex-col shrink-0">
+      <!-- Header -->
+      <div class="p-3 border-b border-slate-800/60 flex items-center justify-between">
+        <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Recent History</span>
+        <div class="flex items-center gap-2">
+          <a
+            href="/history/export"
+            download="maxops_history.json"
+            class="text-[11px] text-slate-400 hover:text-white transition-colors"
+            title="Export History JSON"
+          >
+            Export
+          </a>
+          <button
+            type="button"
+            hx-post="/history/clear"
+            hx-target="#history-sidebar-list"
+            hx-confirm="Are you sure you want to clear all prompt history?"
+            class="text-[11px] text-red-400/80 hover:text-red-300 transition-colors"
+            title="Clear All History"
+          >
+            Clear
+          </button>
+        </div>
+      </div>
+
+      <!-- Search Input -->
+      <div class="p-2.5 border-b border-slate-800/60">
+        <div class="relative">
+          <input
+            type="text"
+            name="q"
+            placeholder="Search history..."
+            hx-get="/history/search"
+            hx-trigger="keyup changed delay:300ms"
+            hx-target="#history-sidebar-list"
+            class="w-full text-xs bg-slate-950/80 border border-slate-800 rounded-lg pl-8 pr-3 py-1.5 text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-colors"
+          />
+          <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-2.5 text-slate-500">
+            <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- History List Container (loaded on start & refreshed via event) -->
+      <div
+        id="history-sidebar-list"
+        hx-get="/history/sidebar"
+        hx-trigger="load, historyUpdated from:body"
+        class="flex-1 overflow-y-auto p-3 space-y-2 text-xs"
+      >
+        <div class="p-4 text-center text-xs text-slate-500">Loading history...</div>
+      </div>
+
+      <!-- Footer Info -->
+      <div class="p-2.5 border-t border-slate-800/60 text-[11px] text-slate-500 flex items-center justify-between">
+        <span>PromptLab v1 Engine</span>
+        <span class="text-emerald-400 text-[10px]">● Live</span>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 flex flex-col justify-between">
+      <div class="max-w-4xl mx-auto w-full flex-1 flex flex-col">
+        {% block content %}{% endblock %}
+      </div>
+
+      <!-- Page Footer -->
+      <footer class="mt-8 border-t border-slate-800/60 pt-4 pb-2 text-center text-xs text-slate-500">
+        © MAx Ops · PromptLab v1 — Enterprise Prompt Engineering Workbench
+      </footer>
+    </main>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2.5 pointer-events-none max-w-sm w-full"></div>
+
+  <!-- Detail Modal Container -->
+  <div id="history-detail-modal"></div>
+
+  <!-- Keyboard Shortcuts Cheatsheet Modal -->
+  <div
+    id="shortcuts-modal"
+    class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in"
+    onclick="if(event.target === this) toggleShortcutsModal()"
+  >
+    <div class="relative w-full max-w-md rounded-2xl border border-slate-800 bg-slate-900 p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-800/80 pb-3">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">⌨️</span>
+          <h3 class="text-sm font-semibold text-white tracking-wide">Keyboard Shortcuts</h3>
+        </div>
+        <button
+          type="button"
+          onclick="toggleShortcutsModal()"
+          class="text-slate-400 hover:text-white text-sm"
+        >
+          ✕
+        </button>
+      </div>
+
+      <div class="space-y-2.5 text-xs">
+        <div class="flex items-center justify-between p-2.5 rounded-lg bg-slate-950/60 border border-slate-800/80">
+          <span class="text-slate-300 font-medium">Send Prompt</span>
+          <div class="flex items-center gap-1">
+            <kbd class="px-2 py-1 rounded bg-slate-800 text-[11px] font-mono text-indigo-300 border border-slate-700">Ctrl</kbd>
+            <span class="text-slate-500">+</span>
+            <kbd class="px-2 py-1 rounded bg-slate-800 text-[11px] font-mono text-indigo-300 border border-slate-700">Enter</kbd>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between p-2.5 rounded-lg bg-slate-950/60 border border-slate-800/80">
+          <span class="text-slate-300 font-medium">Clear Current Prompt</span>
+          <div class="flex items-center gap-1">
+            <kbd class="px-2 py-1 rounded bg-slate-800 text-[11px] font-mono text-indigo-300 border border-slate-700">Ctrl</kbd>
+            <span class="text-slate-500">+</span>
+            <kbd class="px-2 py-1 rounded bg-slate-800 text-[11px] font-mono text-indigo-300 border border-slate-700">L</kbd>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between p-2.5 rounded-lg bg-slate-950/60 border border-slate-800/80">
+          <span class="text-slate-300 font-medium">Search Prompt History</span>
+          <div class="flex items-center gap-1">
+            <kbd class="px-2 py-1 rounded bg-slate-800 text-[11px] font-mono text-indigo-300 border border-slate-700">Ctrl</kbd>
+            <span class="text-slate-500">+</span>
+            <kbd class="px-2 py-1 rounded bg-slate-800 text-[11px] font-mono text-indigo-300 border border-slate-700">K</kbd>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between p-2.5 rounded-lg bg-slate-950/60 border border-slate-800/80">
+          <span class="text-slate-300 font-medium">Close Dialogs & Modals</span>
+          <div class="flex items-center gap-1">
+            <kbd class="px-2 py-1 rounded bg-slate-800 text-[11px] font-mono text-slate-300 border border-slate-700">Esc</kbd>
+          </div>
+        </div>
+      </div>
+
+      <div class="text-[11px] text-slate-500 text-center pt-2 border-t border-slate-800/80">
+        Press <kbd class="px-1.5 py-0.5 rounded bg-slate-800 text-[10px] text-slate-300">Esc</kbd> anytime to dismiss this cheatsheet
+      </div>
+    </div>
+  </div>
+
+  <!-- Universal Helper Scripts -->
+  <script>
+    function loadPromptIntoEditor(entry) {
+      if (!entry) return;
+      const promptInput = document.getElementById('prompt-input');
+      if (promptInput) {
+        promptInput.value = entry.prompt || '';
+        promptInput.dispatchEvent(new Event('input', { bubbles: true }));
+        promptInput.focus();
+      }
+      if (entry.provider) {
+        const providerSelect = document.getElementById('provider-select');
+        if (providerSelect) {
+          providerSelect.value = entry.provider;
+          providerSelect.dispatchEvent(new Event('change'));
+        }
+      }
+      if (entry.model) {
+        const modelSelect = document.getElementById('model-select');
+        if (modelSelect) {
+          setTimeout(() => {
+            modelSelect.value = entry.model;
+          }, 150);
+        }
+      }
+      if (entry.temperature !== undefined) {
+        const tempSlider = document.getElementById('temp-slider');
+        const tempVal = document.getElementById('temp-val');
+        if (tempSlider) tempSlider.value = entry.temperature;
+        if (tempVal) tempVal.textContent = entry.temperature;
+      }
+      if (entry.max_tokens !== undefined) {
+        const maxTokens = document.getElementById('max-tokens');
+        if (maxTokens) maxTokens.value = entry.max_tokens;
+      }
+      if (entry.system_prompt) {
+        const sysContainer = document.getElementById('system-prompt-container');
+        const sysInput = document.getElementById('system-prompt-input');
+        const arrow = document.getElementById('sys-prompt-arrow');
+        if (sysContainer) sysContainer.classList.remove('hidden');
+        if (arrow) arrow.textContent = '▼';
+        if (sysInput) sysInput.value = entry.system_prompt;
+      }
+    }
+
+    function loadPromptDirectly(entry) {
+      loadPromptIntoEditor(entry);
+    }
+  </script>
+
+  <!-- Core App JS -->
+  <script src="/static/js/app.js"></script>
+
+  {% block scripts %}{% endblock %}
+</body>
+</html>
