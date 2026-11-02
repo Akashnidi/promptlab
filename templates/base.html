@@ -51,36 +51,36 @@
 <body class="h-full flex flex-col antialiased selection:bg-blue-500/20 selection:text-blue-700 dark:selection:bg-blue-400/30 dark:selection:text-blue-200">
 
   <!-- ========================================================================
-       TOP NAVIGATION BAR (100% Edge-to-Edge Atlassian Enterprise Header)
+       TOP NAVIGATION BAR (Atlassian Enterprise Corporate Top Bar)
        ======================================================================== -->
-  <header class="h-14 w-full bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-40 px-4 sm:px-6 flex items-center justify-between shrink-0 shadow-xs">
+  <header class="h-14 w-full bg-[#0747a6] dark:bg-slate-900 text-white border-b border-[#053580] dark:border-slate-800 sticky top-0 z-40 px-4 sm:px-6 flex items-center justify-between shrink-0 shadow-sm">
     
     <!-- Left: Brand & Product Logo -->
     <div class="flex items-center gap-3">
       <a href="/" class="flex items-center gap-2.5 group">
-        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-[#0052cc] text-white shadow-sm group-hover:bg-[#0065ff] transition-colors">
+        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-white/15 dark:bg-[#0052cc] text-amber-300 dark:text-white border border-white/20 dark:border-transparent shadow-xs group-hover:bg-white/25 transition-colors">
           <span class="text-sm font-black">⚡</span>
         </div>
         <div class="flex items-center gap-1.5 text-sm">
-          <span class="font-extrabold tracking-tight text-slate-900 dark:text-white">MAx OPS</span>
-          <span class="text-slate-400 font-light mx-0.5">/</span>
-          <span class="font-bold text-[#0052cc] dark:text-[#579dff] tracking-tight">PromptLab</span>
-          <span class="lozenge lozenge-blue ml-1">v1.0</span>
+          <span class="font-extrabold tracking-tight text-white">MAx OPS</span>
+          <span class="text-white/50 font-light mx-0.5">/</span>
+          <span class="font-bold text-sky-200 dark:text-[#579dff] tracking-tight">PromptLab</span>
+          <span class="lozenge bg-white/15 text-white border border-white/25 dark:bg-blue-950/60 dark:text-blue-300 dark:border-blue-800 ml-1">v1.0</span>
         </div>
       </a>
     </div>
 
     <!-- Center: Global Navigation Tabs (Atlassian Segmented Navigation) -->
-    <nav class="hidden md:flex items-center gap-1 text-xs font-semibold">
-      <a href="/" class="px-3.5 py-1.5 rounded-md text-[#0052cc] dark:text-[#579dff] bg-blue-50 dark:bg-blue-950/50 border border-blue-200 dark:border-blue-900/50 flex items-center gap-1.5 transition-colors">
+    <nav class="hidden md:flex items-center gap-1.5 text-xs font-semibold">
+      <a href="/" class="px-3.5 py-1.5 rounded-md text-white bg-white/20 dark:bg-blue-950/50 border border-white/25 dark:border-blue-900/50 flex items-center gap-1.5 transition-colors shadow-2xs">
         <span>⚡</span>
         <span>Playground</span>
       </a>
-      <a href="#history" class="px-3.5 py-1.5 rounded-md text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors flex items-center gap-1.5">
+      <a href="#history" class="px-3.5 py-1.5 rounded-md text-sky-100 hover:text-white hover:bg-white/10 dark:text-slate-300 dark:hover:text-white dark:hover:bg-slate-800 transition-colors flex items-center gap-1.5">
         <span>📜</span>
         <span>History</span>
       </a>
-      <a href="/settings" class="px-3.5 py-1.5 rounded-md text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors flex items-center gap-1.5">
+      <a href="/settings" class="px-3.5 py-1.5 rounded-md text-sky-100 hover:text-white hover:bg-white/10 dark:text-slate-300 dark:hover:text-white dark:hover:bg-slate-800 transition-colors flex items-center gap-1.5">
         <span>🔐</span>
         <span>Vault & Keys</span>
       </a>
@@ -89,13 +89,13 @@
     <!-- Right: Status & Action Utilities -->
     <div class="flex items-center gap-2.5">
       <!-- Live Groq Engine Badge -->
-      <span class="hidden sm:inline-flex items-center gap-1.5 lozenge lozenge-green py-1 px-2.5">
-        <span class="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+      <span class="hidden sm:inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider py-1 px-2.5 rounded bg-emerald-500/20 text-emerald-200 border border-emerald-400/30">
+        <span class="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
         <span>Engine Ready</span>
       </span>
 
       <!-- Mobile Settings Icon -->
-      <a href="/settings" class="md:hidden rounded-md p-2 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" title="Settings">
+      <a href="/settings" class="md:hidden rounded-md p-2 text-sky-100 hover:text-white hover:bg-white/10 dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800 transition-colors" title="Settings">
         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -106,7 +106,7 @@
       <button
         type="button"
         onclick="toggleShortcutsModal()"
-        class="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+        class="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium text-sky-100 hover:text-white bg-white/10 hover:bg-white/20 border border-white/15 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300 dark:hover:text-white transition-colors"
         title="Keyboard Shortcuts (Ctrl+K, Ctrl+Enter, Esc)"
       >
         <span>⌨️</span>
@@ -118,7 +118,7 @@
         type="button"
         id="theme-toggle-btn"
         onclick="toggleTheme()"
-        class="p-2 rounded-md text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors text-xs flex items-center justify-center"
+        class="p-2 rounded-md text-sky-100 hover:text-white bg-white/10 hover:bg-white/20 border border-white/15 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300 dark:hover:text-white transition-colors text-xs flex items-center justify-center"
         title="Toggle Light / Dark Theme"
       >
         <span id="theme-toggle-icon">🌙</span>
@@ -131,20 +131,20 @@
        ======================================================================== -->
   <div class="flex-1 flex overflow-hidden w-full">
 
-    <!-- Left Sidebar: History, Search & Metrics (Atlassian Jira / Confluence Sidebar) -->
-    <aside id="sidebar" class="w-72 lg:w-80 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col shrink-0 overflow-hidden shadow-xs">
+    <!-- Left Sidebar: History, Search & Metrics (Atlassian Jira Cool Gray Sidebar) -->
+    <aside id="sidebar" class="w-72 lg:w-80 bg-[#f4f5f7] dark:bg-slate-900 border-r border-[#dfe1e6] dark:border-slate-800 flex flex-col shrink-0 overflow-hidden shadow-xs">
       
       <!-- History Section Header -->
-      <div class="p-3.5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-900/50">
+      <div class="p-3.5 border-b border-[#dfe1e6] dark:border-slate-800 flex items-center justify-between bg-[#ebecf0]/60 dark:bg-slate-900/50">
         <div class="flex items-center gap-2">
           <span class="h-2 w-2 rounded-full bg-[#0052cc]"></span>
-          <span class="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">Prompt History</span>
+          <span class="text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-slate-300">Prompt History</span>
         </div>
         <div class="flex items-center gap-1.5">
           <a
             href="/history/export"
             download="promptlab_history.json"
-            class="px-2 py-0.5 rounded text-[11px] font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+            class="px-2 py-0.5 rounded text-[11px] font-semibold text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 shadow-2xs hover:bg-slate-50 transition-colors"
             title="Export History JSON"
           >
             Export
@@ -154,7 +154,7 @@
             hx-post="/history/clear"
             hx-target="#history-sidebar-list"
             hx-confirm="Are you sure you want to clear all prompt history?"
-            class="px-2 py-0.5 rounded text-[11px] font-semibold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/50 transition-colors"
+            class="px-2 py-0.5 rounded text-[11px] font-semibold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/50 border border-red-200 dark:border-red-900/40 transition-colors"
             title="Clear All History"
           >
             Clear
@@ -163,7 +163,7 @@
       </div>
 
       <!-- History Search Input with Ctrl+K shortcut badge -->
-      <div class="p-3 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+      <div class="p-3 border-b border-[#dfe1e6] dark:border-slate-800 bg-[#f4f5f7] dark:bg-slate-900">
         <div class="relative">
           <input
             type="text"
@@ -172,7 +172,7 @@
             hx-get="/history/search"
             hx-trigger="keyup changed delay:300ms"
             hx-target="#history-sidebar-list"
-            class="w-full text-xs atlassian-input pl-8 pr-12 py-1.5 placeholder-slate-400 dark:placeholder-slate-500"
+            class="w-full text-xs atlassian-input pl-8 pr-12 py-1.5 bg-white placeholder-slate-400 dark:placeholder-slate-500 shadow-2xs"
           />
           <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-2.5 text-slate-400">
             <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -180,7 +180,7 @@
             </svg>
           </div>
           <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-            <kbd class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-500 border border-slate-200 dark:border-slate-700">⌘K</kbd>
+            <kbd class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-300 dark:border-slate-700">⌘K</kbd>
           </div>
         </div>
       </div>
@@ -196,23 +196,23 @@
       </div>
 
       <!-- Engine Status Footer -->
-      <div class="p-3 border-t border-slate-200 dark:border-slate-800 text-[11px] text-slate-500 dark:text-slate-400 flex items-center justify-between bg-slate-50 dark:bg-slate-950/40">
+      <div class="p-3 border-t border-[#dfe1e6] dark:border-slate-800 text-[11px] text-slate-600 dark:text-slate-400 flex items-center justify-between bg-[#ebecf0] dark:bg-slate-950/40">
         <div class="flex items-center gap-1.5 font-medium">
           <span class="text-xs">⚡</span>
           <span>PromptLab v1</span>
         </div>
-        <span class="font-mono text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold">● Online</span>
+        <span class="font-mono text-[10px] text-emerald-700 dark:text-emerald-400 font-semibold">● Online</span>
       </div>
     </aside>
 
-    <!-- Main Workspace Canvas (Takes ALL remaining screen width, Dotted Power Automate Canvas) -->
+    <!-- Main Workspace Canvas (Dotted Power Automate Canvas) -->
     <main class="flex-1 min-w-0 overflow-y-auto p-4 sm:p-6 lg:p-8 flex flex-col justify-between">
       <div class="w-full max-w-7xl mx-auto flex-1 flex flex-col gap-6">
         {% block content %}{% endblock %}
       </div>
 
       <!-- Global Workbench Footer -->
-      <footer class="mt-12 pt-6 pb-2 text-center text-xs text-slate-500 dark:text-slate-400 border-t border-slate-200/60 dark:border-slate-800/60">
+      <footer class="mt-12 pt-6 pb-2 text-center text-xs text-slate-500 dark:text-slate-400 border-t border-slate-300/60 dark:border-slate-800/60">
         © MAx Ops · PromptLab v1 — Enterprise Prompt Engineering Workbench
       </footer>
     </main>

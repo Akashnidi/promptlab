@@ -269,17 +269,17 @@
     </div>
 
     <!-- SINGLE MODEL & INFERENCE CONTROLS BAR (Hidden in Arena Mode) -->
-    <div id="single-model-selector-container" class="grid grid-cols-1 sm:grid-cols-12 gap-4 items-end">
+    <div id="single-model-selector-container" class="grid grid-cols-1 sm:grid-cols-12 gap-4 items-end bg-slate-50 dark:bg-slate-800/40 p-3.5 rounded-lg border border-slate-200 dark:border-slate-700/60">
       
       <!-- Provider Selector -->
       <div class="sm:col-span-4 space-y-1.5">
-        <label for="provider-select" class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
+        <label for="provider-select" class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
           Provider
         </label>
         <select
           id="provider-select"
           name="provider"
-          class="w-full text-xs atlassian-input px-3 py-2 font-medium"
+          class="w-full text-xs atlassian-input px-3 py-2 font-medium bg-white shadow-2xs"
           hx-get="/prompt/models"
           hx-target="#model-select"
           hx-trigger="change"
@@ -295,7 +295,7 @@
       <!-- Model Selector with Live Sync Button -->
       <div class="sm:col-span-5 space-y-1.5">
         <div class="flex items-center justify-between">
-          <label for="model-select" class="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
+          <label for="model-select" class="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
             Model
           </label>
           <button
@@ -315,7 +315,7 @@
         <select
           id="model-select"
           name="model"
-          class="w-full text-xs atlassian-input px-3 py-2 font-mono font-medium"
+          class="w-full text-xs atlassian-input px-3 py-2 font-mono font-medium bg-white shadow-2xs"
         >
           <option value="allam-2-7b" selected>allam-2-7b (Default)</option>
           <option value="qwen/qwen3.8-27b">qwen/qwen3.8-27b</option>
@@ -327,7 +327,7 @@
       <!-- Temperature Slider -->
       <div class="sm:col-span-3 space-y-1.5">
         <div class="flex items-center justify-between text-xs">
-          <label for="temperature-input" class="font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
+          <label for="temperature-input" class="font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
             Temp
           </label>
           <span id="temp-val" class="lozenge lozenge-blue font-mono font-bold">0.7</span>
