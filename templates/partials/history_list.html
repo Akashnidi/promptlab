@@ -2,16 +2,16 @@
 <div class="space-y-2">
   {% for item in entries %}
   <div
-    class="group relative flex flex-col gap-1.5 rounded-lg border border-slate-800 bg-slate-900/50 p-2.5 hover:border-indigo-500/40 hover:bg-slate-800/60 transition-all cursor-pointer shadow-sm text-left"
+    class="group relative flex flex-col gap-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/80 p-2.5 hover:border-[#0052cc] hover:shadow-xs transition-all cursor-pointer text-left shadow-2xs"
     id="history-item-{{ item.id }}"
   >
     <!-- Top row: Model + Timestamp + Delete -->
     <div class="flex items-center justify-between gap-1 text-[11px]">
       <div class="flex items-center gap-1.5 overflow-hidden">
-        <span class="inline-block truncate max-w-[110px] rounded px-1.5 py-0.5 font-mono text-[10px] font-semibold bg-indigo-500/10 text-indigo-300 border border-indigo-500/20" title="{{ item.model }}">
-          {{ item.model.split('/')[-1][:15] }}
+        <span class="inline-block truncate max-w-[130px] rounded px-1.5 py-0.5 font-mono text-[10px] font-bold lozenge-blue" title="{{ item.model }}">
+          {{ item.model.split('/')[-1][:16] }}
         </span>
-        <span class="text-slate-500 text-[10px]">
+        <span class="text-slate-400 dark:text-slate-500 text-[10px]">
           {% if item.timestamp %}
             {{ item.timestamp[11:16] }} UTC
           {% endif %}
@@ -25,7 +25,7 @@
         hx-target="#history-sidebar-list"
         hx-confirm="Are you sure you want to delete this prompt from history?"
         onclick="event.stopPropagation();"
-        class="text-slate-500 hover:text-red-400 opacity-60 group-hover:opacity-100 p-0.5 rounded transition-all"
+        class="text-slate-400 hover:text-red-600 opacity-60 group-hover:opacity-100 p-0.5 rounded hover:bg-slate-100 dark:hover:bg-slate-700 transition-all"
         title="Delete history entry"
       >
         <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -38,27 +38,33 @@
     <div
       hx-get="/history/item/{{ item.id }}"
       hx-target="#history-detail-modal"
-      class="text-xs text-slate-200 line-clamp-2 leading-snug font-normal hover:text-white"
+      class="text-xs text-slate-800 dark:text-slate-200 line-clamp-2 leading-snug font-normal hover:text-[#0052cc] dark:hover:text-[#579dff] transition-colors"
     >
       {{ item.prompt[:80] }}{% if item.prompt|length > 80 %}...{% endif %}
     </div>
 
-    <!-- Footer metrics: Latency, Tokens, Rating -->
-    <div class="flex items-center justify-between text-[10px] text-slate-500 font-mono pt-0.5">
+    <!-- Footer metrics: Latency, Tokens, Quick Load -->
+    <div class="flex items-center justify-between text-[10px] text-slate-500 dark:text-slate-400 font-mono pt-1 border-t border-slate-100 dark:border-slate-700/60">
       <div class="flex items-center gap-2">
-        <span>⚡ {{ item.latency_ms | round(0) }}ms</span>
-        <span>🔢 {{ item.usage.total_tokens or 0 }}t</span>
+        <span class="inline-flex items-center gap-0.5 text-amber-700 dark:text-amber-400 font-semibold">
+          <span>⚡</span>
+          <span>{{ item.latency_ms | round(0) }}ms</span>
+        </span>
+        <span class="inline-flex items-center gap-0.5">
+          <span>🔢</span>
+          <span>{{ item.usage.total_tokens or 0 }}t</span>
+        </span>
       </div>
 
-      <div class="flex items-center gap-1">
+      <div class="flex items-center gap-1.5">
         {% if item.rating %}
-          <span class="text-amber-400">★ {{ item.rating }}</span>
+          <span class="text-amber-500 font-bold">★ {{ item.rating }}</span>
         {% endif %}
-        <!-- Quick Load Icon -->
+        <!-- Quick Load Button -->
         <button
           type="button"
           onclick="event.stopPropagation(); loadPromptDirectly({{ item | tojson | forceescape }});"
-          class="opacity-0 group-hover:opacity-100 text-indigo-400 hover:text-indigo-200 transition-opacity"
+          class="opacity-0 group-hover:opacity-100 rounded px-1.5 py-0.5 bg-blue-50 dark:bg-blue-950 text-[#0052cc] dark:text-[#579dff] hover:bg-blue-100 text-[10px] font-bold transition-all border border-blue-200 dark:border-blue-900"
           title="Load directly into editor"
         >
           Load ↗
@@ -69,9 +75,9 @@
   {% endfor %}
 </div>
 {% else %}
-<div class="rounded-xl border border-dashed border-slate-800 p-6 text-center text-slate-500">
+<div class="rounded-lg border border-dashed border-slate-300 dark:border-slate-700 p-6 text-center text-slate-400 bg-slate-50/50 dark:bg-slate-800/20">
   <div class="text-xl mb-1.5">📜</div>
-  <p class="text-xs font-medium text-slate-400">No prompts yet</p>
-  <p class="text-[11px] text-slate-500 mt-1">Start experimenting to build your prompt history!</p>
+  <p class="text-xs font-bold text-slate-700 dark:text-slate-300">No prompts yet</p>
+  <p class="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">Your executed prompts will appear here automatically</p>
 </div>
 {% endif %}

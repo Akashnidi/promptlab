@@ -3,30 +3,74 @@
 {% block title %}PromptLab v1 — by MAx Ops{% endblock %}
 
 {% block content %}
-<div class="mx-auto max-w-4xl w-full flex flex-col gap-6">
+<div class="w-full flex flex-col gap-6">
 
-  <!-- Expandable File Upload & Template Library Section -->
-  <div class="rounded-xl border border-slate-800 bg-slate-900/60 shadow-xl backdrop-blur-md overflow-hidden transition-all">
+  <!-- ========================================================================
+       WORKBENCH HEADER & BREADCRUMBS (Atlassian Enterprise Style)
+       ======================================================================== -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-1 border-b border-slate-200/70 dark:border-slate-800/70">
+    <div>
+      <div class="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 font-medium mb-1">
+        <span>Workspaces</span>
+        <span>/</span>
+        <span class="text-slate-800 dark:text-slate-200 font-semibold">PromptLab</span>
+        <span>/</span>
+        <span class="text-[#0052cc] dark:text-[#579dff] font-bold">Playground</span>
+      </div>
+      <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+        Prompt Engineering Workbench
+      </h1>
+      <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+        Sub-second Groq inference, parameterized Jinja2 templates, and multi-model LLM Arena evaluations.
+      </p>
+    </div>
+
+    <!-- Feature Strip Lozenges -->
+    <div class="flex flex-wrap items-center gap-2 self-start sm:self-auto">
+      <span class="lozenge lozenge-amber">
+        <span>⚡</span> Sub-Second Groq
+      </span>
+      <span class="lozenge lozenge-purple">
+        <span>🧩</span> Jinja2 Engine
+      </span>
+      <span class="lozenge lozenge-blue">
+        <span>⚖️</span> LLM Arena
+      </span>
+      <span class="lozenge lozenge-green">
+        <span>🔐</span> Encrypted Vault
+      </span>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       EXPANDABLE TEMPLATE & FILE LIBRARY SECTION
+       ======================================================================== -->
+  <div class="atlassian-card overflow-hidden">
     <div
-      class="flex items-center justify-between p-4 bg-slate-950/40 hover:bg-slate-950/60 cursor-pointer select-none transition-colors"
+      class="flex items-center justify-between p-4 bg-slate-50/60 dark:bg-slate-800/40 hover:bg-slate-100/60 dark:hover:bg-slate-800/70 cursor-pointer select-none transition-colors border-b border-slate-200/60 dark:border-slate-800/60"
       onclick="toggleFileLibrary()"
     >
-      <div class="flex items-center gap-2.5">
-        <span class="text-lg">📁</span>
-        <h3 class="text-xs font-semibold text-slate-200 uppercase tracking-wider">
-          Prompt & Template Library <span class="text-slate-400 font-normal lowercase">(Upload Files)</span>
-        </h3>
+      <div class="flex items-center gap-3">
+        <div class="flex h-8 w-8 items-center justify-center rounded-md bg-blue-50 dark:bg-blue-950/60 text-[#0052cc] dark:text-[#579dff] border border-blue-200 dark:border-blue-900/60 font-semibold text-sm">
+          📁
+        </div>
+        <div>
+          <h3 class="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
+            Prompt & Template Library
+          </h3>
+          <p class="text-[11px] text-slate-500 dark:text-slate-400">Upload, select, and test reusable prompt files</p>
+        </div>
       </div>
       <div class="flex items-center gap-2">
-        <span id="file-library-count" class="text-[11px] font-mono text-slate-400 bg-slate-800/60 px-2 py-0.5 rounded border border-slate-700/50">
+        <span id="file-library-count" class="hidden sm:inline-block text-[11px] font-mono text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-2.5 py-0.5 rounded border border-slate-200 dark:border-slate-700">
           .txt, .j2, .yaml, .json, .md
         </span>
-        <span id="file-library-arrow" class="text-xs text-slate-400 transition-transform duration-200">▶</span>
+        <span id="file-library-arrow" class="h-6 w-6 flex items-center justify-center rounded-md bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-600 dark:text-slate-300 transition-transform">▶</span>
       </div>
     </div>
 
     <!-- Collapsible Body -->
-    <div id="file-library-body" class="hidden p-5 border-t border-slate-800/80 space-y-4">
+    <div id="file-library-body" class="hidden p-4 space-y-4 bg-white dark:bg-slate-900">
       <!-- Drag-and-Drop / File Upload Form -->
       <form
         id="file-upload-form"
@@ -34,13 +78,13 @@
         hx-encoding="multipart/form-data"
         hx-target="#uploaded-files-container"
         hx-indicator="#upload-spinner"
-        class="flex flex-col sm:flex-row items-center gap-3 p-3.5 rounded-xl border border-dashed border-slate-700/80 bg-slate-950/70 hover:border-indigo-500/50 transition-all"
+        class="flex flex-col sm:flex-row items-center gap-3 p-4 rounded-lg border-2 border-dashed border-slate-300 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-950/30 hover:border-[#0052cc] transition-colors"
         hx-on::after-request="if(event.detail.successful) { document.getElementById('file-upload-input').value = ''; updateSelectedFileName(document.getElementById('file-upload-input')); }"
       >
         <div class="flex-1 w-full flex items-center gap-3">
           <label
             for="file-upload-input"
-            class="flex items-center gap-2 cursor-pointer rounded-lg bg-slate-800/80 hover:bg-slate-700/80 border border-slate-600/60 px-3.5 py-2 text-xs font-medium text-slate-200 transition-colors flex-shrink-0"
+            class="flex items-center gap-2 cursor-pointer btn-atlassian-secondary text-xs flex-shrink-0 shadow-xs"
           >
             <span>📎 Choose File</span>
           </label>
@@ -53,14 +97,14 @@
             onchange="updateSelectedFileName(this)"
             class="hidden"
           />
-          <span id="selected-file-label" class="text-xs text-slate-400 truncate max-w-sm font-mono">
-            Drag & drop here or browse (up to 1MB)
+          <span id="selected-file-label" class="text-xs text-slate-500 dark:text-slate-400 truncate max-w-sm font-mono">
+            Drag & drop prompt files here (up to 1MB)
           </span>
         </div>
 
         <div class="flex items-center gap-3 w-full sm:w-auto justify-end">
-          <div id="upload-spinner" class="htmx-indicator items-center gap-1.5 text-xs text-indigo-400 font-medium">
-            <svg class="h-4 w-4 animate-spin text-indigo-400" fill="none" viewBox="0 0 24 24">
+          <div id="upload-spinner" class="htmx-indicator items-center gap-1.5 text-xs text-[#0052cc] font-medium">
+            <svg class="h-4 w-4 animate-spin text-[#0052cc]" fill="none" viewBox="0 0 24 24">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
             </svg>
@@ -69,285 +113,251 @@
 
           <button
             type="submit"
-            class="inline-flex items-center gap-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 px-4 py-2 text-xs font-semibold text-white shadow-sm transition-all active:scale-95"
+            class="btn-atlassian-primary text-xs"
           >
-            <span>⬆️</span>
-            <span>Upload File</span>
+            <span>⬆️ Upload File</span>
           </button>
         </div>
       </form>
 
       <!-- Toast / Notification container -->
-      <div id="file-toast" class="hidden rounded-lg p-2.5 text-xs font-medium flex items-center justify-between"></div>
+      <div id="file-toast" class="hidden rounded-md p-3 text-xs font-medium flex items-center justify-between"></div>
 
       <!-- File Listing Container -->
       <div id="uploaded-files-container" hx-get="/files/list" hx-trigger="load">
-        <div class="text-center py-4 text-xs text-slate-500 font-mono">
-          <span class="animate-pulse">Loading saved files...</span>
+        <div class="text-center py-4 text-xs text-slate-400 font-mono">
+          <span class="animate-pulse">Loading saved template files...</span>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Main Prompt Form Card -->
+  <!-- ========================================================================
+       MAIN PROMPT WORKBENCH CARD (Atlassian Elevated Card)
+       ======================================================================== -->
   <form
     id="prompt-form"
     onsubmit="return false;"
-    class="rounded-xl border border-slate-800 bg-slate-900/60 p-5 shadow-2xl backdrop-blur-md space-y-5"
+    class="atlassian-card p-5 sm:p-6 space-y-5"
   >
-    <!-- MODE SWITCHER TAB BAR -->
-    <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/80 pb-4">
-      <div class="flex items-center gap-1.5 p-1 rounded-xl bg-slate-950/80 border border-slate-800">
+    <!-- MODE SWITCHER TAB BAR (Atlassian Segmented Control) -->
+    <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-800 pb-4">
+      <div class="flex items-center p-1 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
         <button
           type="button"
           id="mode-simple-btn"
           onclick="switchMode('simple')"
-          class="px-3.5 py-1.5 rounded-lg text-xs font-semibold text-white bg-indigo-600 shadow-sm transition-all"
+          class="px-4 py-1.5 rounded-md text-xs font-bold text-white bg-[#0052cc] shadow-xs transition-all flex items-center gap-1.5"
         >
-          ✏️ Simple Prompt
+          <span>✏️</span>
+          <span>Simple Prompt</span>
         </button>
+
         <button
           type="button"
           id="mode-template-btn"
           onclick="switchMode('template')"
-          class="px-3.5 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white transition-all"
+          class="px-4 py-1.5 rounded-md text-xs font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-700 transition-all flex items-center gap-1.5"
         >
-          🧩 Prompt Template
+          <span>🧩</span>
+          <span>Prompt Template</span>
         </button>
+
         <button
           type="button"
           id="mode-arena-btn"
           onclick="switchMode('arena')"
-          class="px-3.5 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white transition-all flex items-center gap-1.5"
+          class="px-4 py-1.5 rounded-md text-xs font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-700 transition-all flex items-center gap-1.5"
         >
           <span>⚖️</span>
-          <span>LLM Arena <span class="text-[10px] text-amber-400/90 font-mono font-normal">(Optional)</span></span>
+          <span>LLM Arena <span class="text-[10px] text-amber-600 dark:text-amber-400 font-bold ml-0.5">(Multi-Model)</span></span>
         </button>
       </div>
 
-      <input type="hidden" id="prompt-mode-input" name="prompt_mode" value="simple">
-      <input type="hidden" id="template-name-input" name="template_name" value="">
+      <!-- Hidden Mode State Field -->
+      <input type="hidden" name="mode" id="prompt-mode-input" value="simple">
 
-      <!-- Bundled Templates Selector (Visible only in Template mode) -->
+      <!-- Bundled Templates Quick Picker (Visible in Template Mode) -->
       <div id="template-selector-container" class="hidden flex items-center gap-2">
-        <label for="bundled-template-select" class="text-xs text-slate-400 font-medium flex items-center gap-1">
-          <span>📚</span>
-          <span>Load Template:</span>
+        <label for="template-picker" class="text-xs font-bold text-slate-600 dark:text-slate-400">
+          Preset:
         </label>
         <select
-          id="bundled-template-select"
+          id="template-picker"
           onchange="loadBundledTemplate(this.value)"
-          class="rounded-lg border border-slate-700 bg-slate-950 px-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500 font-medium transition-colors"
+          class="text-xs atlassian-input px-3 py-1.5"
         >
-          <option value="">Choose a bundled template...</option>
-          <option value="summarize">Summarize</option>
-          <option value="chain_of_thought">Chain of Thought</option>
-          <option value="few_shot">Few-Shot Sentiment</option>
-          <option value="code_review">Code Review</option>
+          <option value="">-- Choose Starter Template --</option>
+          <option value="summarize">summarize.j2 (Article / Text Summarizer)</option>
+          <option value="chain_of_thought">chain_of_thought.j2 (Step-by-step Reasoning)</option>
+          <option value="few_shot">few_shot.j2 (Few-shot Classification)</option>
+          <option value="code_review">code_review.j2 (Security & Performance Audit)</option>
         </select>
+        <input type="hidden" name="template_name" id="template-name-input" value="">
       </div>
     </div>
 
-    <!-- AMBER TOKEN USAGE WARNING BANNER (Visible only in Arena tab) -->
-    <div id="arena-warning-banner" class="hidden rounded-xl border border-amber-500/40 bg-amber-500/10 p-4 text-xs text-amber-200 flex items-start gap-3 shadow-lg shadow-amber-950/20 animate-fade-in">
-      <span class="text-xl flex-shrink-0">⚠️</span>
-      <div class="space-y-1">
-        <span class="font-bold text-amber-300 uppercase tracking-wider text-[11px] block">Token Usage Notice:</span>
-        <p class="text-amber-200/90 leading-relaxed text-xs">
-          The Arena executes your prompt concurrently across all chosen models. This multiplies token usage and consumes API rate limits faster. Select 2 to 3 models only when you specifically need to compare outputs.
-        </p>
-      </div>
-    </div>
-
-    <!-- ARENA MODEL SELECTION CONTAINER (Visible only in Arena tab) -->
-    <div id="arena-models-container" class="hidden rounded-xl border border-slate-800 bg-slate-950/60 p-4 space-y-3 animate-fade-in">
-      <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800/80 pb-2.5">
-        <div class="flex items-center gap-2">
-          <span class="text-sm">🎯</span>
-          <span class="text-xs font-semibold text-slate-200 uppercase tracking-wider">Choose Comparison Models (Groq)</span>
+    <!-- ARENA MULTI-MODEL COMPARISON CONFIGURATION (Visible in Arena Mode) -->
+    <div id="arena-warning-banner" class="hidden rounded-lg bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/50 p-4">
+      <div class="flex items-start gap-3">
+        <div class="text-lg">⚔️</div>
+        <div class="flex-1 text-xs">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-amber-900 dark:text-amber-200 text-sm">LLM Battle Arena</span>
+            <span id="arena-counter-badge" class="lozenge lozenge-amber">
+              Selected: 0/3 (min 2 required)
+            </span>
+          </div>
+          <p class="text-amber-800 dark:text-amber-300 mt-1 leading-relaxed">
+            Select 2 or 3 models below to benchmark latency, token output, and response quality simultaneously side-by-side.
+          </p>
         </div>
-        <span id="arena-counter-badge" class="font-mono text-xs px-2.5 py-1 rounded-full bg-slate-800 border border-slate-700 text-slate-400">
-          Selected: 0/3 (minimum 2 required)
-        </span>
-      </div>
-
-      <!-- Checkbox Grid -->
-      <div
-        class="grid grid-cols-1 sm:grid-cols-2 gap-2.5"
-        id="arena-checkboxes-grid"
-        hx-get="/prompt/arena-models"
-        hx-trigger="modelsSynced from:body"
-      >
-        <label class="arena-model-option flex items-start gap-3 p-3 rounded-lg border border-slate-800 bg-slate-900/60 hover:bg-slate-900 hover:border-slate-700 cursor-pointer select-none transition-all">
-          <input
-            type="checkbox"
-            name="models"
-            value="allam-2-7b"
-            onchange="handleArenaModelChange(this)"
-            class="mt-0.5 rounded border-slate-700 bg-slate-950 text-indigo-600 focus:ring-indigo-500 h-4 w-4"
-          />
-          <div class="min-w-0 flex-1">
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-bold text-slate-200 font-mono">Allam 2 7B</span>
-              <span class="text-[10px] uppercase font-mono px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">FAST</span>
-            </div>
-            <p class="text-[11px] text-slate-400 mt-0.5">High-efficiency multilingual language model</p>
-          </div>
-        </label>
-
-        <label class="arena-model-option flex items-start gap-3 p-3 rounded-lg border border-slate-800 bg-slate-900/60 hover:bg-slate-900 hover:border-slate-700 cursor-pointer select-none transition-all">
-          <input
-            type="checkbox"
-            name="models"
-            value="qwen/qwen3.8-27b"
-            onchange="handleArenaModelChange(this)"
-            class="mt-0.5 rounded border-slate-700 bg-slate-950 text-indigo-600 focus:ring-indigo-500 h-4 w-4"
-          />
-          <div class="min-w-0 flex-1">
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-bold text-slate-200 font-mono">Qwen 3.8 27B</span>
-              <span class="text-[10px] uppercase font-mono px-1.5 py-0.2 rounded bg-purple-500/10 text-purple-400 border border-purple-500/20">REASONING</span>
-            </div>
-            <p class="text-[11px] text-slate-400 mt-0.5">Advanced reasoning and mathematical reasoning model</p>
-          </div>
-        </label>
-
-        <label class="arena-model-option flex items-start gap-3 p-3 rounded-lg border border-slate-800 bg-slate-900/60 hover:bg-slate-900 hover:border-slate-700 cursor-pointer select-none transition-all">
-          <input
-            type="checkbox"
-            name="models"
-            value="openai/gpt-oss-20b"
-            onchange="handleArenaModelChange(this)"
-            class="mt-0.5 rounded border-slate-700 bg-slate-950 text-indigo-600 focus:ring-indigo-500 h-4 w-4"
-          />
-          <div class="min-w-0 flex-1">
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-bold text-slate-200 font-mono">GPT OSS 20B</span>
-              <span class="text-[10px] uppercase font-mono px-1.5 py-0.2 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">GENERAL</span>
-            </div>
-            <p class="text-[11px] text-slate-400 mt-0.5">Open weights general instruction model</p>
-          </div>
-        </label>
-
-        <label class="arena-model-option flex items-start gap-3 p-3 rounded-lg border border-slate-800 bg-slate-900/60 hover:bg-slate-900 hover:border-slate-700 cursor-pointer select-none transition-all">
-          <input
-            type="checkbox"
-            name="models"
-            value="openai/gpt-oss-120b"
-            onchange="handleArenaModelChange(this)"
-            class="mt-0.5 rounded border-slate-700 bg-slate-950 text-indigo-600 focus:ring-indigo-500 h-4 w-4"
-          />
-          <div class="min-w-0 flex-1">
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-bold text-slate-200 font-mono">GPT OSS 120B</span>
-              <span class="text-[10px] uppercase font-mono px-1.5 py-0.2 rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">FLAGSHIP</span>
-            </div>
-            <p class="text-[11px] text-slate-400 mt-0.5">Flagship 120B reasoning and synthesis model</p>
-          </div>
-        </label>
       </div>
     </div>
 
-    <!-- CONTROLS BAR -->
-    <div class="grid grid-cols-1 gap-4 sm:grid-cols-12 items-end pb-4 border-b border-slate-800/80">
+    <!-- Arena Checkbox Cards Grid (Visible in Arena Mode) -->
+    <div
+      id="arena-models-container"
+      class="hidden grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3"
+      hx-get="/prompt/arena-models"
+      hx-trigger="load"
+    >
+      <!-- Pre-rendered Fallback Checkboxes -->
+      <label class="arena-model-option flex items-start gap-2.5 p-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/40 hover:border-[#0052cc] cursor-pointer transition-colors">
+        <input type="checkbox" name="models" value="allam-2-7b" onchange="handleArenaModelChange(this)" class="mt-0.5 rounded text-[#0052cc] focus:ring-[#0052cc] h-4 w-4">
+        <div class="min-w-0 flex-1">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-slate-800 dark:text-slate-200">Allam 2 7B</span>
+            <span class="lozenge lozenge-green">Fast</span>
+          </div>
+          <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Ultra-low latency default model</p>
+        </div>
+      </label>
+
+      <label class="arena-model-option flex items-start gap-2.5 p-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/40 hover:border-[#0052cc] cursor-pointer transition-colors">
+        <input type="checkbox" name="models" value="qwen/qwen3.8-27b" onchange="handleArenaModelChange(this)" class="mt-0.5 rounded text-[#0052cc] focus:ring-[#0052cc] h-4 w-4">
+        <div class="min-w-0 flex-1">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-slate-800 dark:text-slate-200">Qwen 3.8 27B</span>
+            <span class="lozenge lozenge-purple">Reasoning</span>
+          </div>
+          <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Deep analytical & logic capabilities</p>
+        </div>
+      </label>
+
+      <label class="arena-model-option flex items-start gap-2.5 p-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/40 hover:border-[#0052cc] cursor-pointer transition-colors">
+        <input type="checkbox" name="models" value="openai/gpt-oss-20b" onchange="handleArenaModelChange(this)" class="mt-0.5 rounded text-[#0052cc] focus:ring-[#0052cc] h-4 w-4">
+        <div class="min-w-0 flex-1">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-slate-800 dark:text-slate-200">GPT OSS 20B</span>
+            <span class="lozenge lozenge-blue">General</span>
+          </div>
+          <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Balanced coding & reasoning</p>
+        </div>
+      </label>
+
+      <label class="arena-model-option flex items-start gap-2.5 p-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/40 hover:border-[#0052cc] cursor-pointer transition-colors">
+        <input type="checkbox" name="models" value="openai/gpt-oss-120b" onchange="handleArenaModelChange(this)" class="mt-0.5 rounded text-[#0052cc] focus:ring-[#0052cc] h-4 w-4">
+        <div class="min-w-0 flex-1">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-slate-800 dark:text-slate-200">GPT OSS 120B</span>
+            <span class="lozenge lozenge-amber">Flagship</span>
+          </div>
+          <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">High parameter frontier capacity</p>
+        </div>
+      </label>
+    </div>
+
+    <!-- SINGLE MODEL & INFERENCE CONTROLS BAR (Hidden in Arena Mode) -->
+    <div id="single-model-selector-container" class="grid grid-cols-1 sm:grid-cols-12 gap-4 items-end">
       
       <!-- Provider Selector -->
-      <div class="sm:col-span-4">
-        <label for="provider-select" class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">
+      <div class="sm:col-span-4 space-y-1.5">
+        <label for="provider-select" class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
           Provider
         </label>
-        <div class="relative">
-          <select
-            id="provider-select"
-            name="provider"
-            class="w-full appearance-none rounded-lg border border-slate-700 bg-slate-950/90 px-3.5 py-2 text-sm text-slate-100 font-medium focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-colors"
-            hx-get="/prompt/models"
-            hx-target="#model-select"
-            hx-trigger="change"
-          >
-            <option value="groq" selected>⚡ Groq</option>
-            <option value="openai">OpenAI</option>
-            <option value="anthropic">Anthropic</option>
-            <option value="google">Google Gemini</option>
-          </select>
-          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400">
-            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-            </svg>
-          </div>
-        </div>
+        <select
+          id="provider-select"
+          name="provider"
+          class="w-full text-xs atlassian-input px-3 py-2 font-medium"
+          hx-get="/prompt/models"
+          hx-target="#model-select"
+          hx-trigger="change"
+          hx-include="#provider-select"
+        >
+          <option value="groq" selected>⚡ Groq Inference (Sub-Second)</option>
+          <option value="openai">OpenAI (GPT-4o / O1)</option>
+          <option value="anthropic">Anthropic (Claude 3.5)</option>
+          <option value="google">Google Gemini (Flash)</option>
+        </select>
       </div>
 
-      <!-- Model Selector (Hidden in Arena mode) -->
-      <div id="single-model-selector-container" class="sm:col-span-5">
-        <div class="flex items-center justify-between mb-1">
-          <label for="model-select" class="text-xs font-semibold text-neutral-400 uppercase tracking-wider">Model</label>
-          <button type="button" 
-                  id="btn-sync-models"
-                  title="Sync live models from Groq"
-                  hx-get="/prompt/models"
-                  hx-include="#provider-select"
-                  hx-target="#model-select"
-                  hx-indicator="#sync-spinner"
-                  class="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded bg-neutral-800 hover:bg-neutral-700 text-neutral-300 border border-neutral-700 hover:border-neutral-600 transition">
+      <!-- Model Selector with Live Sync Button -->
+      <div class="sm:col-span-5 space-y-1.5">
+        <div class="flex items-center justify-between">
+          <label for="model-select" class="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
+            Model
+          </label>
+          <button
+            type="button"
+            id="sync-models-btn"
+            hx-get="/prompt/models"
+            hx-target="#model-select"
+            hx-include="#provider-select"
+            class="text-[11px] text-[#0052cc] dark:text-[#579dff] hover:underline flex items-center gap-1 font-semibold"
+            title="Sync live models from provider API"
+          >
             <span id="sync-icon">🔄</span>
-            <span id="sync-spinner" class="htmx-indicator animate-spin">⏳</span>
-            <span>Sync Models</span>
+            <span class="htmx-indicator animate-spin">⏳</span>
+            <span>Sync</span>
           </button>
         </div>
-        <div class="relative">
-          <select
-            id="model-select"
-            name="model"
-            class="w-full appearance-none rounded-lg border border-slate-700 bg-slate-950/90 px-3.5 py-2 text-sm text-slate-100 font-mono text-xs focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-colors"
-          >
-            <option value="allam-2-7b" selected>allam-2-7b (Default)</option>
-            <option value="qwen/qwen3.8-27b">qwen/qwen3.8-27b</option>
-            <option value="openai/gpt-oss-20b">openai/gpt-oss-20b</option>
-            <option value="openai/gpt-oss-120b">openai/gpt-oss-120b</option>
-          </select>
-          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400">
-            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-            </svg>
-          </div>
-        </div>
+        <select
+          id="model-select"
+          name="model"
+          class="w-full text-xs atlassian-input px-3 py-2 font-mono font-medium"
+        >
+          <option value="allam-2-7b" selected>allam-2-7b (Default)</option>
+          <option value="qwen/qwen3.8-27b">qwen/qwen3.8-27b</option>
+          <option value="openai/gpt-oss-20b">openai/gpt-oss-20b</option>
+          <option value="openai/gpt-oss-120b">openai/gpt-oss-120b</option>
+        </select>
       </div>
 
       <!-- Temperature Slider -->
-      <div class="sm:col-span-3">
-        <div class="flex items-center justify-between mb-1.5">
-          <label for="temp-slider" class="text-xs font-semibold uppercase tracking-wider text-slate-400">
+      <div class="sm:col-span-3 space-y-1.5">
+        <div class="flex items-center justify-between text-xs">
+          <label for="temperature-input" class="font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
             Temp
           </label>
-          <span id="temp-val" class="font-mono text-xs font-bold text-indigo-400">0.7</span>
+          <span id="temp-val" class="lozenge lozenge-blue font-mono font-bold">0.7</span>
         </div>
         <input
           type="range"
-          id="temp-slider"
+          id="temperature-input"
           name="temperature"
           min="0.0"
           max="2.0"
           step="0.1"
           value="0.7"
           oninput="document.getElementById('temp-val').textContent = this.value"
-          class="w-full accent-indigo-500 cursor-pointer h-1.5 bg-slate-800 rounded-lg"
+          class="w-full accent-[#0052cc] cursor-pointer h-2 bg-slate-200 dark:bg-slate-700 rounded-lg"
         />
       </div>
 
     </div>
 
-    <!-- MIDDLE SECTION — Prompt Area -->
-    <div class="space-y-3">
+    <!-- MIDDLE SECTION: Prompt Input Area -->
+    <div class="space-y-3 pt-1">
       
-      <!-- Collapsible System Prompt -->
+      <!-- Collapsible System Prompt Accordion -->
       <div>
         <button
           type="button"
           onclick="toggleSystemPrompt()"
-          class="inline-flex items-center gap-1.5 text-xs font-medium text-slate-400 hover:text-indigo-400 transition-colors"
+          class="btn-atlassian-secondary text-xs"
         >
-          <span id="sys-prompt-arrow" class="transition-transform duration-200">▶</span>
+          <span id="sys-prompt-arrow" class="text-[10px] transition-transform">▶</span>
           <span>⚙️ System Prompt (optional)</span>
         </button>
 
@@ -357,7 +367,7 @@
             name="system_prompt"
             rows="3"
             placeholder="You are an expert AI assistant specialized in..."
-            class="w-full rounded-lg border border-slate-700/80 bg-slate-950/80 p-3 text-xs font-mono text-slate-200 placeholder-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 resize-y transition-all"
+            class="w-full atlassian-input p-3 text-xs font-mono placeholder-slate-400 resize-y"
           ></textarea>
         </div>
       </div>
@@ -371,14 +381,18 @@
           rows="6"
           required
           oninput="updateCountAndResize(this); triggerDetectVariables();"
-          placeholder="Enter your prompt here... (Ctrl+Enter to send)"
-          class="w-full rounded-xl border border-slate-700/90 bg-slate-950/90 p-4 text-sm font-sans text-slate-100 placeholder-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 resize-y transition-all shadow-inner"
+          placeholder="Enter your prompt here... (Press Ctrl+Enter to send)"
+          class="w-full atlassian-input p-4 text-sm font-sans placeholder-slate-400 dark:placeholder-slate-500 resize-y leading-relaxed shadow-xs"
         ></textarea>
 
-        <!-- Live Character, Word & Token Count -->
-        <div class="flex items-center justify-between text-xs text-slate-500 px-1 font-mono">
-          <span id="char-count">0 chars · 0 words · ~0 tokens</span>
-          <span class="text-[11px] text-slate-600">Press Ctrl+Enter to send</span>
+        <!-- Live Character, Word & Token Count Counter -->
+        <div class="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 px-1 font-mono">
+          <span id="char-count" class="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-[11px] border border-slate-200 dark:border-slate-700">
+            0 chars · 0 words · ~0 tokens
+          </span>
+          <span class="text-[11px] hidden sm:inline">
+            Press <kbd class="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-[#0052cc] dark:text-[#579dff] font-mono border border-slate-200 dark:border-slate-700">Ctrl+Enter</kbd> to execute
+          </span>
         </div>
       </div>
 
@@ -390,12 +404,12 @@
 
     </div>
 
-    <!-- BOTTOM SECTION — Action Bar -->
-    <div class="flex flex-wrap items-center justify-between gap-4 pt-3 border-t border-slate-800/80">
+    <!-- BOTTOM ACTION TOOLBAR -->
+    <div class="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-slate-200 dark:border-slate-800">
       
       <!-- Max Tokens Input -->
       <div class="flex items-center gap-2">
-        <label for="max-tokens" class="text-xs font-semibold uppercase tracking-wider text-slate-400">
+        <label for="max-tokens" class="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
           Max Tokens:
         </label>
         <input
@@ -405,7 +419,7 @@
           min="100"
           max="8000"
           value="1024"
-          class="w-24 rounded-lg border border-slate-700 bg-slate-950/90 px-2.5 py-1.5 text-xs font-mono text-slate-100 text-center focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+          class="w-24 atlassian-input px-3 py-1.5 text-xs font-mono text-center font-bold"
         />
       </div>
 
@@ -418,22 +432,21 @@
           hx-post="/templates/preview"
           hx-target="#template-preview-container"
           hx-include="#prompt-form"
-          class="hidden inline-flex items-center gap-1.5 rounded-lg border border-sky-500/30 bg-sky-500/10 px-3.5 py-2 text-xs font-semibold text-sky-300 hover:bg-sky-500/20 transition-all active:scale-95 shadow-sm"
+          class="hidden btn-atlassian-secondary text-xs"
         >
-          <span>👁️</span>
-          <span>Preview Rendered Prompt</span>
+          <span>👁️ Preview Template</span>
         </button>
 
-        <!-- Animated Loading Spinner -->
-        <div id="loading-spinner" class="htmx-indicator items-center gap-2 text-xs font-medium text-indigo-400">
-          <svg class="h-4 w-4 animate-spin text-indigo-400" fill="none" viewBox="0 0 24 24">
+        <!-- Loading Spinner -->
+        <div id="loading-spinner" class="htmx-indicator items-center gap-2 text-xs font-semibold text-[#0052cc]">
+          <svg class="h-4 w-4 animate-spin text-[#0052cc]" fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
           </svg>
-          <span class="animate-pulse">Thinking...</span>
+          <span class="font-mono">Inferencing...</span>
         </div>
 
-        <!-- Send Button -->
+        <!-- Primary Execute Button (Atlassian Blue Action) -->
         <button
           id="btn-send-prompt"
           type="button"
@@ -442,9 +455,9 @@
           hx-swap="afterbegin"
           hx-include="#prompt-form"
           hx-indicator="#loading-spinner"
-          class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-indigo-600/30 hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-slate-900 transition-all active:scale-[0.98]"
+          class="btn-atlassian-primary text-sm shadow-sm"
         >
-          <span>Send</span>
+          <span>Send Prompt</span>
           <span class="text-xs">➤</span>
         </button>
       </div>
@@ -452,43 +465,48 @@
     </div>
   </form>
 
-  <!-- RESPONSE AREA -->
+  <!-- ========================================================================
+       EXECUTION FEED & OUTPUT STREAM
+       ======================================================================== -->
   <div class="flex flex-col gap-3">
     <div class="flex items-center justify-between px-1">
-      <h3 class="text-xs font-semibold uppercase tracking-wider text-slate-400">Response Feed</h3>
+      <div class="flex items-center gap-2">
+        <span class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">Execution Feed</h3>
+      </div>
       <button
         type="button"
         onclick="clearResponses()"
-        class="text-xs text-slate-500 hover:text-slate-300 transition-colors"
+        class="btn-atlassian-secondary text-xs py-1 px-2.5"
       >
-        Clear Responses
+        Clear Feed
       </button>
     </div>
 
     <div id="response-area" class="flex flex-col">
-      <!-- Empty State (shown when no responses exist) -->
-      <div id="empty-state" class="rounded-xl border border-dashed border-slate-800 bg-slate-900/20 p-10 text-center">
-        <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-500/10 text-2xl border border-indigo-500/20 mb-3 shadow-inner">
-          🧪
+      <!-- Empty State (Atlassian Clean Style, Light, NO black boxes!) -->
+      <div id="empty-state" class="atlassian-card p-10 text-center bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+        <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-xl bg-blue-50 dark:bg-blue-950/60 text-2xl text-[#0052cc] dark:text-[#579dff] border border-blue-200 dark:border-blue-900/50 mb-3 shadow-xs">
+          ⚡
         </div>
-        <h4 class="text-base font-semibold text-white">Prompt Playground Ready</h4>
-        <p class="text-xs text-slate-400 mt-1 max-w-sm mx-auto">
-          Send your first prompt or use dynamic templates to build parameterized AI workflows.
+        <h4 class="text-base font-bold text-slate-900 dark:text-white tracking-tight">Prompt Workbench Ready</h4>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-sm mx-auto leading-relaxed">
+          Type a prompt or choose a template above, then dispatch with sub-second Groq speed.
         </p>
         
-        <div class="mt-6 inline-flex flex-col items-start gap-1.5 rounded-lg border border-slate-800/80 bg-slate-950/60 p-3.5 text-left text-xs text-slate-400">
-          <span class="font-semibold text-slate-300 text-[11px] uppercase tracking-wider mb-1">Quick Tips:</span>
+        <div class="mt-5 inline-flex flex-col items-start gap-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/40 p-4 text-left text-xs text-slate-600 dark:text-slate-300 max-w-md mx-auto">
+          <span class="font-bold text-[#0052cc] dark:text-[#579dff] text-[11px] uppercase tracking-wider">Quick Suggestions:</span>
           <div class="flex items-center gap-2">
-            <span class="text-indigo-400">•</span>
-            <span>Switch to <strong>Prompt Template</strong> mode to detect dynamic variables like <code class="text-indigo-300 font-mono">{% raw %}{{audience}}{% endraw %}</code>.</span>
+            <span class="text-[#0052cc]">•</span>
+            <span>Switch to <strong>Prompt Template</strong> mode to auto-detect variables like <code class="text-[#0052cc] font-mono">{% raw %}{{topic}}{% endraw %}</code>.</span>
           </div>
           <div class="flex items-center gap-2">
-            <span class="text-indigo-400">•</span>
-            <span>Click <strong>Preview Rendered Prompt</strong> to view the interpolated prompt before sending.</span>
+            <span class="text-[#0052cc]">•</span>
+            <span>Switch to <strong>LLM Arena</strong> to evaluate multi-model outputs side-by-side.</span>
           </div>
           <div class="flex items-center gap-2">
-            <span class="text-indigo-400">•</span>
-            <span>Press <kbd class="px-1 py-0.5 rounded bg-slate-800 text-[10px] text-slate-200">Ctrl</kbd> + <kbd class="px-1 py-0.5 rounded bg-slate-800 text-[10px] text-slate-200">Enter</kbd> to rapidly dispatch prompts.</span>
+            <span class="text-[#0052cc]">•</span>
+            <span>Press <kbd class="px-1.5 py-0.5 rounded bg-white dark:bg-slate-900 text-[10px] font-mono border border-slate-300 dark:border-slate-700">Ctrl + Enter</kbd> to send instantly without using the mouse.</span>
           </div>
         </div>
       </div>
@@ -502,7 +520,7 @@
 <script>
   let detectDebounceTimer = null;
 
-  // Mode Switcher: Simple vs Template vs Arena
+  // Mode Switcher: 'simple' | 'template' | 'arena'
   function switchMode(mode) {
     const simpleBtn = document.getElementById('mode-simple-btn');
     const templateBtn = document.getElementById('mode-template-btn');
@@ -517,16 +535,16 @@
     const arenaModelsContainer = document.getElementById('arena-models-container');
     const sendBtn = document.getElementById('btn-send-prompt');
 
-    // Reset all tabs
+    // Reset all tabs to inactive Atlassian style
     [simpleBtn, templateBtn, arenaBtn].forEach(btn => {
       if (!btn) return;
-      btn.className = 'px-3.5 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white transition-all flex items-center gap-1.5';
+      btn.className = 'px-4 py-1.5 rounded-md text-xs font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-700 transition-all flex items-center gap-1.5';
     });
 
     if (mode === 'arena') {
       modeInput.value = 'arena';
       if (arenaBtn) {
-        arenaBtn.className = 'px-3.5 py-1.5 rounded-lg text-xs font-semibold text-white bg-amber-600 shadow-sm transition-all flex items-center gap-1.5';
+        arenaBtn.className = 'px-4 py-1.5 rounded-md text-xs font-bold text-white bg-amber-600 shadow-xs transition-all flex items-center gap-1.5';
       }
 
       if (arenaWarningBanner) arenaWarningBanner.classList.remove('hidden');
@@ -540,6 +558,7 @@
       if (sendBtn) {
         sendBtn.setAttribute('hx-post', '/prompt/compare');
         sendBtn.innerHTML = '<span>⚔️ Run Arena Comparison</span> <span class="text-xs">🔥</span>';
+        sendBtn.className = 'inline-flex items-center gap-2 rounded-md bg-amber-600 hover:bg-amber-500 px-6 py-2.5 text-xs font-bold text-white shadow-xs transition-all active:scale-95';
         htmx.process(sendBtn);
       }
       updateArenaButtonState();
@@ -547,7 +566,7 @@
     } else if (mode === 'template') {
       modeInput.value = 'template';
       if (templateBtn) {
-        templateBtn.className = 'px-3.5 py-1.5 rounded-lg text-xs font-semibold text-white bg-indigo-600 shadow-sm transition-all flex items-center gap-1.5';
+        templateBtn.className = 'px-4 py-1.5 rounded-md text-xs font-bold text-white bg-[#0052cc] shadow-xs transition-all flex items-center gap-1.5';
       }
 
       if (arenaWarningBanner) arenaWarningBanner.classList.add('hidden');
@@ -559,7 +578,8 @@
 
       if (sendBtn) {
         sendBtn.setAttribute('hx-post', '/prompt/execute');
-        sendBtn.innerHTML = '<span>Send</span> <span class="text-xs">➤</span>';
+        sendBtn.innerHTML = '<span>Send Prompt</span> <span class="text-xs">➤</span>';
+        sendBtn.className = 'btn-atlassian-primary text-sm shadow-xs';
         sendBtn.disabled = false;
         sendBtn.classList.remove('opacity-50', 'cursor-not-allowed');
         sendBtn.title = '';
@@ -572,7 +592,7 @@
       // Default: Simple Mode
       modeInput.value = 'simple';
       if (simpleBtn) {
-        simpleBtn.className = 'px-3.5 py-1.5 rounded-lg text-xs font-semibold text-white bg-indigo-600 shadow-sm transition-all flex items-center gap-1.5';
+        simpleBtn.className = 'px-4 py-1.5 rounded-md text-xs font-bold text-white bg-[#0052cc] shadow-xs transition-all flex items-center gap-1.5';
       }
 
       if (arenaWarningBanner) arenaWarningBanner.classList.add('hidden');
@@ -585,7 +605,8 @@
 
       if (sendBtn) {
         sendBtn.setAttribute('hx-post', '/prompt/execute');
-        sendBtn.innerHTML = '<span>Send</span> <span class="text-xs">➤</span>';
+        sendBtn.innerHTML = '<span>Send Prompt</span> <span class="text-xs">➤</span>';
+        sendBtn.className = 'btn-atlassian-primary text-sm shadow-xs';
         sendBtn.disabled = false;
         sendBtn.classList.remove('opacity-50', 'cursor-not-allowed');
         sendBtn.title = '';
@@ -622,9 +643,9 @@
       const parent = cb.closest('label');
       if (!parent) return;
       if (cb.checked) {
-        parent.classList.add('border-indigo-500/70', 'bg-indigo-950/20');
+        parent.classList.add('border-[#0052cc]', 'bg-blue-50/50', 'dark:bg-blue-950/30', 'ring-1', 'ring-[#0052cc]');
       } else {
-        parent.classList.remove('border-indigo-500/70', 'bg-indigo-950/20');
+        parent.classList.remove('border-[#0052cc]', 'bg-blue-50/50', 'dark:bg-blue-950/30', 'ring-1', 'ring-[#0052cc]');
       }
     });
 
@@ -632,17 +653,17 @@
     const badge = document.getElementById('arena-counter-badge');
     if (badge) {
       if (count === 0) {
-        badge.textContent = 'Selected: 0/3 (minimum 2 required)';
-        badge.className = 'font-mono text-xs px-2.5 py-1 rounded-full bg-slate-800 border border-slate-700 text-slate-400';
+        badge.textContent = 'Selected: 0/3 (min 2 required)';
+        badge.className = 'lozenge lozenge-amber';
       } else if (count === 1) {
         badge.textContent = 'Selected: 1/3 (need 1 more)';
-        badge.className = 'font-mono text-xs px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 font-medium';
+        badge.className = 'lozenge lozenge-amber';
       } else if (count === 2) {
-        badge.textContent = 'Selected: 2/3 (Ready!)';
-        badge.className = 'font-mono text-xs px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 font-semibold';
+        badge.textContent = 'Selected: 2/3 (Ready to Battle!)';
+        badge.className = 'lozenge lozenge-green';
       } else {
         badge.textContent = 'Selected: 3/3 (Max limit reached)';
-        badge.className = 'font-mono text-xs px-2.5 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 font-bold';
+        badge.className = 'lozenge lozenge-purple';
       }
     }
 
@@ -659,16 +680,16 @@
       const checkedCount = document.querySelectorAll('input[name="models"]:checked').length;
       if (checkedCount < 2) {
         sendBtn.disabled = true;
-        sendBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        sendBtn.classList.add('opacity-40', 'cursor-not-allowed');
         sendBtn.title = 'Select at least 2 models to run Arena comparison';
       } else {
         sendBtn.disabled = false;
-        sendBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        sendBtn.classList.remove('opacity-40', 'cursor-not-allowed');
         sendBtn.title = `Run comparison across ${checkedCount} models`;
       }
     } else {
       sendBtn.disabled = false;
-      sendBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+      sendBtn.classList.remove('opacity-40', 'cursor-not-allowed');
       sendBtn.title = '';
     }
   }
@@ -726,10 +747,6 @@
 
   // Update Char/Word/Token Count & Auto-resize
   function updateCountAndResize(textarea) {
-    if (window.updateCounterAndResize) {
-      window.updateCounterAndResize(textarea);
-      return;
-    }
     const countEl = document.getElementById('char-count');
     const val = textarea.value || '';
     const chars = val.length;
@@ -756,11 +773,11 @@
     }
 
     const original = button.innerHTML;
-    button.innerHTML = '<span>✅</span><span>Copied!</span>';
-    button.classList.add('border-emerald-500/40', 'text-emerald-300');
+    button.innerHTML = '<span>✅ Copied!</span>';
+    button.classList.add('border-emerald-500', 'text-emerald-600');
     setTimeout(() => {
       button.innerHTML = original;
-      button.classList.remove('border-emerald-500/40', 'text-emerald-300');
+      button.classList.remove('border-emerald-500', 'text-emerald-600');
     }, 1800);
   }
 
@@ -769,13 +786,13 @@
     const area = document.getElementById('response-area');
     if (!area) return;
     area.innerHTML = `
-      <div id="empty-state" class="rounded-xl border border-dashed border-slate-800 bg-slate-900/20 p-10 text-center">
-        <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-500/10 text-2xl border border-indigo-500/20 mb-3 shadow-inner">
-          🧪
+      <div id="empty-state" class="atlassian-card p-10 text-center bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+        <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-xl bg-blue-50 dark:bg-blue-950/60 text-2xl text-[#0052cc] dark:text-[#579dff] border border-blue-200 dark:border-blue-900/50 mb-3 shadow-xs">
+          ⚡
         </div>
-        <h4 class="text-base font-semibold text-white">Prompt Playground Ready</h4>
-        <p class="text-xs text-slate-400 mt-1 max-w-sm mx-auto">
-          Send your first prompt to see the AI response here.
+        <h4 class="text-base font-bold text-slate-900 dark:text-white tracking-tight">Prompt Workbench Ready</h4>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-sm mx-auto leading-relaxed">
+          Send your first prompt to see the AI response rendered here.
         </p>
       </div>
     `;
@@ -803,12 +820,12 @@
       const f = input.files[0];
       const kb = (f.size / 1024).toFixed(1);
       label.textContent = `${f.name} (${kb} KB)`;
-      label.classList.add('text-indigo-300');
-      label.classList.remove('text-slate-400');
+      label.classList.add('text-[#0052cc]', 'font-bold');
+      label.classList.remove('text-slate-500');
     } else {
-      label.textContent = 'Drag & drop here or browse (up to 1MB)';
-      label.classList.remove('text-indigo-300');
-      label.classList.add('text-slate-400');
+      label.textContent = 'Drag & drop prompt files here (up to 1MB)';
+      label.classList.remove('text-[#0052cc]', 'font-bold');
+      label.classList.add('text-slate-500');
     }
   }
 
@@ -864,13 +881,13 @@
     const toast = document.getElementById('file-toast');
     if (!toast) return;
 
-    toast.className = 'rounded-lg p-2.5 text-xs font-medium flex items-center justify-between border';
+    toast.className = 'rounded-md p-3 text-xs font-medium flex items-center justify-between border';
     if (type === 'success') {
-      toast.classList.add('bg-emerald-500/10', 'border-emerald-500/30', 'text-emerald-300');
-      toast.innerHTML = `<span>✅ ${msg}</span><button type="button" onclick="this.parentElement.classList.add('hidden')" class="text-emerald-400 hover:text-emerald-200">✕</button>`;
+      toast.classList.add('bg-emerald-50', 'border-emerald-200', 'text-emerald-800');
+      toast.innerHTML = `<span>✅ ${msg}</span><button type="button" onclick="this.parentElement.classList.add('hidden')" class="text-emerald-600 hover:text-emerald-900">✕</button>`;
     } else {
-      toast.classList.add('bg-rose-500/10', 'border-rose-500/30', 'text-rose-300');
-      toast.innerHTML = `<span>⚠️ ${msg}</span><button type="button" onclick="this.parentElement.classList.add('hidden')" class="text-rose-400 hover:text-rose-200">✕</button>`;
+      toast.classList.add('bg-red-50', 'border-red-200', 'text-red-800');
+      toast.innerHTML = `<span>⚠️ ${msg}</span><button type="button" onclick="this.parentElement.classList.add('hidden')" class="text-red-600 hover:text-red-900">✕</button>`;
     }
     toast.classList.remove('hidden');
 
@@ -900,13 +917,13 @@
       ['dragenter', 'dragover'].forEach(eventName => {
         dropForm.addEventListener(eventName, (e) => {
           e.preventDefault();
-          dropForm.classList.add('border-indigo-500', 'bg-slate-900/90');
+          dropForm.classList.add('border-[#0052cc]', 'bg-blue-50/20');
         });
       });
       ['dragleave', 'drop'].forEach(eventName => {
         dropForm.addEventListener(eventName, (e) => {
           e.preventDefault();
-          dropForm.classList.remove('border-indigo-500', 'bg-slate-900/90');
+          dropForm.classList.remove('border-[#0052cc]', 'bg-blue-50/20');
         });
       });
       dropForm.addEventListener('drop', (e) => {

@@ -1,27 +1,209 @@
 /* ============================================================================
-   PromptLab v1 by MAx Ops Core & Design Tokens
+   PromptLab v1 by MAx Ops — Atlassian Design System + Power Automate Dotted Canvas
+   Enterprise LLM Workbench UI & Theme Engine
    ============================================================================ */
 
 :root {
-  color-scheme: dark;
-  --bg-main: #0b0f19;
-  --bg-card: #111827;
-  --border-color: #1f2937;
-  --text-primary: #f9fafb;
-  --text-muted: #9ca3af;
+  color-scheme: light;
+  --atlassian-blue: #0052cc;
+  --atlassian-blue-hover: #0065ff;
+  --atlassian-blue-active: #0747a6;
+  --atlassian-blue-subtle: #e9f2ff;
+  --atlassian-navy: #091e42;
+  --atlassian-text: #172b4d;
+  --atlassian-muted: #6b778c;
+  --atlassian-border: #dfe1e6;
+  --atlassian-card-bg: #ffffff;
+  --atlassian-subtle-bg: #f4f5f7;
+  --dot-color: #cbd5e1;
+  --canvas-bg: #f8fafc;
+  --shadow-card: 0 1px 2px rgba(9, 30, 66, 0.08), 0 0 1px rgba(9, 30, 66, 0.2);
+  --shadow-elevated: 0 4px 12px -2px rgba(9, 30, 66, 0.12), 0 0 1px rgba(9, 30, 66, 0.25);
 }
 
-.light-theme {
-  color-scheme: light;
-  --bg-main: #f3f4f6;
-  --bg-card: #ffffff;
-  --border-color: #e5e7eb;
-  --text-primary: #111827;
-  --text-muted: #6b7280;
+html.dark {
+  color-scheme: dark;
+  --atlassian-blue: #388bff;
+  --atlassian-blue-hover: #579dff;
+  --atlassian-blue-active: #0c66e4;
+  --atlassian-blue-subtle: rgba(56, 139, 255, 0.15);
+  --atlassian-navy: #f8fafc;
+  --atlassian-text: #e2e8f0;
+  --atlassian-muted: #94a3b8;
+  --atlassian-border: #1e293b;
+  --atlassian-card-bg: #111827;
+  --atlassian-subtle-bg: #0f172a;
+  --dot-color: #334155;
+  --canvas-bg: #0b0f19;
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.4), 0 0 1px rgba(255, 255, 255, 0.05);
+  --shadow-elevated: 0 8px 24px -4px rgba(0, 0, 0, 0.6), 0 0 1px rgba(255, 255, 255, 0.1);
 }
 
 /* ============================================================================
-   Sleek WebKit Scrollbar
+   Body & Power Automate Dotted Background Canvas
+   ============================================================================ */
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Noto Sans', 'Ubuntu', 'Fira Sans', 'Helvetica Neue', sans-serif;
+  background-color: var(--canvas-bg);
+  background-image: radial-gradient(var(--dot-color) 1.25px, transparent 1.25px);
+  background-size: 20px 20px;
+  color: var(--atlassian-text);
+  min-height: 100vh;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* ============================================================================
+   Atlassian Design System Components
+   ============================================================================ */
+
+.atlassian-card {
+  background-color: var(--atlassian-card-bg);
+  border: 1px solid var(--atlassian-border);
+  border-radius: 10px;
+  box-shadow: var(--shadow-card);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.atlassian-card-elevated {
+  background-color: var(--atlassian-card-bg);
+  border: 1px solid var(--atlassian-border);
+  border-radius: 12px;
+  box-shadow: var(--shadow-elevated);
+}
+
+/* Buttons */
+.btn-atlassian-primary {
+  background-color: #0052cc;
+  color: #ffffff !important;
+  font-weight: 600;
+  border-radius: 6px;
+  padding: 0.5rem 1.25rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.15s ease;
+  box-shadow: 0 1px 2px rgba(0, 82, 204, 0.2);
+}
+
+.btn-atlassian-primary:hover {
+  background-color: #0065ff;
+  box-shadow: 0 2px 6px rgba(0, 82, 204, 0.35);
+}
+
+.btn-atlassian-primary:active {
+  background-color: #0747a6;
+  transform: scale(0.99);
+}
+
+.btn-atlassian-secondary {
+  background-color: #f4f5f7;
+  color: #172b4d !important;
+  font-weight: 500;
+  border: 1px solid #dfe1e6;
+  border-radius: 6px;
+  padding: 0.4rem 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: all 0.15s ease;
+}
+
+.btn-atlassian-secondary:hover {
+  background-color: #ebecf0;
+  border-color: #c1c7d0;
+}
+
+html.dark .btn-atlassian-secondary {
+  background-color: #1e293b;
+  color: #f1f5f9 !important;
+  border-color: #334155;
+}
+
+html.dark .btn-atlassian-secondary:hover {
+  background-color: #334155;
+  border-color: #475569;
+}
+
+/* Inputs & Form Elements */
+.atlassian-input {
+  background-color: var(--atlassian-card-bg);
+  border: 1px solid var(--atlassian-border);
+  color: var(--atlassian-text);
+  border-radius: 6px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.atlassian-input:focus {
+  border-color: #4c9aff;
+  box-shadow: 0 0 0 2px rgba(76, 154, 255, 0.25);
+  outline: none;
+}
+
+/* Lozenges / Badges */
+.lozenge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.lozenge-blue {
+  background-color: #e9f2ff;
+  color: #0052cc;
+  border: 1px solid #cce0ff;
+}
+
+html.dark .lozenge-blue {
+  background-color: rgba(56, 139, 255, 0.15);
+  color: #579dff;
+  border-color: rgba(56, 139, 255, 0.3);
+}
+
+.lozenge-green {
+  background-color: #e3fcef;
+  color: #006644;
+  border: 1px solid #abf5d1;
+}
+
+html.dark .lozenge-green {
+  background-color: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+.lozenge-amber {
+  background-color: #fff0b3;
+  color: #172b4d;
+  border: 1px solid #ffe380;
+}
+
+html.dark .lozenge-amber {
+  background-color: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+  border-color: rgba(245, 158, 11, 0.3);
+}
+
+.lozenge-purple {
+  background-color: #eae6ff;
+  color: #403294;
+  border: 1px solid #c0b6f2;
+}
+
+html.dark .lozenge-purple {
+  background-color: rgba(168, 85, 247, 0.15);
+  color: #c084fc;
+  border-color: rgba(168, 85, 247, 0.3);
+}
+
+/* ============================================================================
+   Custom Scrollbar
    ============================================================================ */
 
 ::-webkit-scrollbar {
@@ -34,20 +216,20 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #374151;
-  border-radius: 3px;
+  background: rgba(100, 116, 139, 0.25);
+  border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #4b5563;
+  background: rgba(100, 116, 139, 0.45);
 }
 
-.light-theme ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+html.dark ::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.2);
 }
 
-.light-theme ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+html.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.35);
 }
 
 /* ============================================================================
@@ -68,7 +250,7 @@
 }
 
 /* ============================================================================
-   Animations & Transitions
+   Animations & Toast
    ============================================================================ */
 
 @keyframes fadeIn {
@@ -83,18 +265,17 @@
 }
 
 .animate-fade-in {
-  animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: fadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* Toast Animations */
 @keyframes toastSlideIn {
   from {
     opacity: 0;
-    transform: translateX(110%);
+    transform: translateX(100%) scale(0.95);
   }
   to {
     opacity: 1;
-    transform: translateX(0);
+    transform: translateX(0) scale(1);
   }
 }
 
@@ -110,11 +291,11 @@
 }
 
 .toast-enter {
-  animation: toastSlideIn 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: toastSlideIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .toast-leave {
-  animation: toastFadeOut 0.22s ease-in forwards;
+  animation: toastFadeOut 0.2s ease-in forwards;
 }
 
 /* ============================================================================
@@ -122,111 +303,32 @@
    ============================================================================ */
 
 pre, code, kbd {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
 .prose pre {
-  background-color: #0f172a !important;
-  border: 1px solid #1e293b !important;
-  border-radius: 0.75rem !important;
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 8px !important;
   padding: 1rem !important;
   overflow-x: auto;
-  box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.3);
+}
+
+html.dark .prose pre {
+  background-color: #0f172a !important;
+  color: #f8fafc !important;
+  border-color: #1e293b !important;
 }
 
 .prose code {
-  color: #a5b4fc !important;
+  color: #0052cc !important;
+  background-color: #f1f5f9;
+  padding: 0.15rem 0.35rem;
+  border-radius: 4px;
 }
 
-.light-theme .prose pre {
-  background-color: #f8fafc !important;
-  border: 1px solid #e2e8f0 !important;
-  box-shadow: inset 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-}
-
-.light-theme .prose code {
-  color: #4338ca !important;
-}
-
-/* ============================================================================
-   Light Theme Adaptations
-   ============================================================================ */
-
-.light-theme body {
-  background-color: var(--bg-main) !important;
-  color: var(--text-primary) !important;
-}
-
-.light-theme header {
-  background-color: rgba(255, 255, 255, 0.85) !important;
-  border-color: var(--border-color) !important;
-}
-
-.light-theme aside#sidebar {
-  background-color: rgba(255, 255, 255, 0.75) !important;
-  border-color: var(--border-color) !important;
-}
-
-.light-theme #prompt-form,
-.light-theme .response-card,
-.light-theme .rounded-xl.border-slate-800,
-.light-theme .modal-card {
-  background-color: var(--bg-card) !important;
-  border-color: var(--border-color) !important;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05) !important;
-}
-
-.light-theme textarea#prompt-input,
-.light-theme textarea#system-prompt-input,
-.light-theme input[type="text"],
-.light-theme input[type="number"],
-.light-theme select {
-  background-color: #ffffff !important;
-  border-color: var(--border-color) !important;
-  color: var(--text-primary) !important;
-}
-
-.light-theme textarea::placeholder,
-.light-theme input::placeholder {
-  color: var(--text-muted) !important;
-}
-
-.light-theme .text-slate-100,
-.light-theme .text-slate-200,
-.light-theme .text-white {
-  color: var(--text-primary) !important;
-}
-
-.light-theme .text-slate-300,
-.light-theme .text-slate-400,
-.light-theme .text-slate-500 {
-  color: var(--text-muted) !important;
-}
-
-.light-theme .border-slate-800,
-.light-theme .border-slate-800\/80,
-.light-theme .border-slate-800\/60,
-.light-theme .border-slate-700,
-.light-theme .border-slate-700\/80,
-.light-theme .border-slate-700\/90 {
-  border-color: var(--border-color) !important;
-}
-
-.light-theme .bg-slate-950,
-.light-theme .bg-slate-950\/80,
-.light-theme .bg-slate-950\/90,
-.light-theme .bg-slate-950\/70,
-.light-theme .bg-slate-950\/60,
-.light-theme .bg-slate-950\/40 {
-  background-color: #f8fafc !important;
-}
-
-.light-theme .bg-slate-900\/60,
-.light-theme .bg-slate-900\/40,
-.light-theme .bg-slate-900\/20 {
-  background-color: #ffffff !important;
-}
-
-.light-theme .prose {
-  color: #334155 !important;
+html.dark .prose code {
+  color: #579dff !important;
+  background-color: #1e293b;
 }
